@@ -1,0 +1,294 @@
+/*
+ * 11/19/04 1.0 moved to LGPL.
+ * 
+ * 12/12/99 0.0.7 Implementation stores single bits as ints for better performance. mdm@techie.com.
+ * 
+ * 02/28/99 0.0 Java Conversion by E.B, javalayer@javazoom.net
+ * 
+ * Adapted from the public c code by Jeff Tsay.
+ * 
+ * ----------------------------------------------------------------------- This program is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 11/19/04 1.0 moved to LGPL.
+ * 
+ * 11/17/04 Uncomplete frames discarded. E.B, javalayer@javazoom.net
+ * 
+ * 12/05/03 ID3v2 tag returned. E.B, javalayer@javazoom.net
+ * 
+ * 12/12/99 Based on Ibitstream. Exceptions thrown on errors, Temporary removed seek functionality. mdm@techie.com
+ * 
+ * 02/12/99 : Java Conversion by E.B , javalayer@javazoom.net
+ * 
+ * 04/14/97 : Added function prototypes for new syncing and seeking mechanisms. Also made this file portable. Changes made by Jeff
+ * Tsay
+ * 
+ * @(#) ibitstream.h 1.5, last edit: 6/15/94 16:55:34
+ * 
+ * @(#) Copyright (C) 1993, 1994 Tobias Bading (bading@cs.tu-berlin.de)
+ * 
+ * @(#) Berlin University of Technology----------------------------------------------------------------------- This program is
+ * free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as published
+ * by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 11/19/04 1.0 moved to LGPL. 12/12/99 Initial version. mdm@techie.com
+ * ----------------------------------------------------------------------- This program is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 11/19/04 : 1.0 moved to LGPL.
+ * 
+ * 02/12/99 : Java Conversion by E.B , javalayer@javazoom.net
+ * 
+ * @(#) crc.h 1.5, last edit: 6/15/94 16:55:32
+ * 
+ * @(#) Copyright (C) 1993, 1994 Tobias Bading (bading@cs.tu-berlin.de)
+ * 
+ * @(#) Berlin University of Technology----------------------------------------------------------------------- This program is
+ * free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as published
+ * by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 11/19/04 1.0 moved to LGPL. 01/12/99 Initial version. mdm@techie.com
+ * ----------------------------------------------------------------------- This program is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 09/26/08 throw exception on subbband alloc error: Christopher G. Jennings (cjennings@acm.org) 11/19/04 1.0 moved to LGPL.
+ * 12/12/99 Initial version. mdm@techie.com----------------------------------------------------------------------- This program is
+ * free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as published
+ * by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 11/19/04 : 1.0 moved to LGPL. VBRI header support added, E.B javalayer@javazoom.net
+ * 
+ * 12/04/03 : VBR (XING) header support added, E.B javalayer@javazoom.net
+ * 
+ * 02/13/99 : Java Conversion by JavaZOOM , E.B javalayer@javazoom.net
+ * 
+ * Declarations for MPEG header class A few layer III, MPEG-2 LSF, and seeking modifications made by Jeff Tsay. Last modified :
+ * 04/19/97
+ * 
+ * @(#) header.h 1.7, last edit: 6/15/94 16:55:33
+ * 
+ * @(#) Copyright (C) 1993, 1994 Tobias Bading (bading@cs.tu-berlin.de)
+ * 
+ * @(#) Berlin University of Technology----------------------------------------------------------------------- This program is
+ * free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as published
+ * by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 11/19/04 1.0 moved to LGPL. 16/11/99 Renamed class, added javadoc, and changed table name from String to 3 chars.
+ * mdm@techie.com 02/15/99 Java Conversion by E.B, javalayer@javazoom.net
+ * 
+ * 04/19/97 : Adapted from the ISO MPEG Audio Subgroup Software Simulation Group's public c source for its MPEG audio decoder.
+ * Miscellaneous changes by Jeff Tsay (ctsay@pasteur.eecs.berkeley.edu).
+ * ----------------------------------------------------------------------- Copyright (c) 1991 MPEG/audio software simulation
+ * group, All Rights Reserved MPEG/audio coding/decoding software, work in progress NOT for public distribution until verified and
+ * approved by the MPEG/audio committee. For further information, please contact Davis Pan, 508-493-2241, e-mail:
+ * pan@3d.enet.dec.com
+ * 
+ * VERSION 4.1 changes made since last update: date programmers comment 27.2.92 F.O.Witte (ITT Intermetall) 8/24/93 M. Iwadare
+ * Changed for 1 pass decoding. 7/14/94 J. Koller useless 'typedef' before huffcodetab removed
+ * ----------------------------------------------------------------------- This program is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 09/26/08 throw exception on subbband alloc error: Christopher G. Jennings (cjennings@acm.org)
+ * 
+ * 11/19/04 1.0 moved to LGPL.
+ * 
+ * 12/12/99 Initial version. Adapted from javalayer.java and Subband.java. mdm@techie.com
+ * 
+ * 02/28/99 Initial version : javalayer.java by E.B----------------------------------------------------------------------- This
+ * program is free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 11/19/04 1.0 moved to LGPL.
+ * 
+ * 29/05/01 Michael Scheerer, Fixed some C++ to Java porting bugs.
+ * 
+ * 16/07/01 Michael Scheerer, Catched a bug in method read_sampledata, which causes an outOfIndexException.
+ * 
+ * 12/12/99 Initial version. Adapted from javalayer.java and Subband.java. mdm@techie.com
+ * 
+ * 02/28/99 Initial version : javalayer.java by E.B----------------------------------------------------------------------- This
+ * program is free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 11/19/04 1.0 moved to LGPL.
+ * 
+ * 18/06/01 Michael Scheerer, Fixed bugs which causes negative indexes in method huffmann_decode and in method dequanisize_sample.
+ * 
+ * 16/07/01 Michael Scheerer, Catched a bug in method huffmann_decode, which causes an outOfIndexException. Cause : Indexnumber of
+ * 24 at SfBandIndex, which has only a length of 22. I have simply and dirty fixed the index to <= 22, because I'm not really be
+ * able to fix the bug. The Indexnumber is taken from the MP3 file and the origin Ma-Player with the same code works well.
+ * 
+ * 02/19/99 Java Conversion by E.B, javalayer@javazoom.net-----------------------------------------------------------------------
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 11/19/04 1.0 moved to LGPL. 12/12/99 Added appendSamples() method for efficiency. MDM. 15/02/99 ,Java Conversion by E.B
+ * ,ebsp@iname.com, JavaLayer
+ * 
+ * Declarations for output buffer, includes operating system implementation of the virtual Obuffer. Optional routines enabling
+ * seeks and stops added by Jeff Tsay.
+ * 
+ * @(#) obuffer.h 1.8, last edit: 6/15/94 16:51:56
+ * 
+ * @(#) Copyright (C) 1993, 1994 Tobias Bading (bading@cs.tu-berlin.de)
+ * 
+ * @(#) Berlin University of Technology
+ * 
+ * Idea and first implementation for u-law output with fast downsampling by Jim Boucher (jboucher@flash.bu.edu)
+ * 
+ * LinuxObuffer class written by Louis P. Kruger (lpkruger@phoenix.princeton.edu)
+ * ----------------------------------------------------------------------- This program is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 11/19/04 1.0 moved to LGPL. 12/12/99 Initial implementation. mdm@techie.com.
+ * ----------------------------------------------------------------------- This program is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */
+
+/*
+ * 11/19/04 1.0 moved to LGPL.
+ * 
+ * 04/01/00 Fixes for running under build 23xx Microsoft JVM. mdm.
+ * 
+ * 19/12/99 Performance improvements to compute_pcm_samples(). Mat McGowan. mdm@techie.com.
+ * 
+ * 16/02/99 Java Conversion by E.B , javalayer@javazoom.net
+ * 
+ * @(#) synthesis_filter.h 1.8, last edit: 6/15/94 16:52:00
+ * 
+ * @(#) Copyright (C) 1993, 1994 Tobias Bading (bading@cs.tu-berlin.de)
+ * 
+ * @(#) Berlin University of Technology
+ * 
+ * ----------------------------------------------------------------------- This program is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * ----------------------------------------------------------------------
+ */

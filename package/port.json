@@ -1,0 +1,22 @@
+{
+  "version": 4,
+  "name": "gunslugs.zip",
+  "items": ["Gunslugs.sh", "gunslugs"],
+  "items_opt": [],
+  "attr": {
+    "title": "Gunslugs (experimental APK adaptation)",
+    "porter": [],
+    "desc": "Experimental Java/libGDX adaptation of owner-supplied Gunslugs Android data for AArch64 Linux handhelds. Device gameplay validation is pending.",
+    "desc_md": null,
+    "inst": "Prepare your own compatible APK on a PC using this project's build/preparation tools. On muOS copy gunslugs into /ports and Gunslugs.sh into /roms/PORTS on the SD card. On ArkOS/dArkOS place both together in the ports folder. Current PortMaster, Westonpack and Java 17 runtimes are required. No original game content is distributed.",
+    "inst_md": null,
+    "genres": ["action", "platformer"],
+    "image": null,
+    "rtr": false,
+    "exp": true,
+    "runtime": ["weston_pkg_0.2.squashfs", "zulu17.54.21-ca-jre17.0.13-linux.squashfs"],
+    "reqs": [],
+    "arch": ["aarch64"],
+    "min_glibc": "2.27"
+  }
+}

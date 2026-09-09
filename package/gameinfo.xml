@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gameList>
+  <game>
+    <path>./Gunslugs.sh</path>
+    <name>Gunslugs (experimental)</name>
+    <desc>Experimental adaptation using owner-supplied Android game data. Requires current PortMaster, Java 17 and Westonpack. Hardware gameplay testing is pending.</desc>
+    <genre>Action</genre>
+    <players>1</players>
+  </game>
+</gameList>

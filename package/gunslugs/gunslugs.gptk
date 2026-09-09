@@ -1,0 +1,19 @@
+# Defaults recovered from the APK's control table; device testing is pending.
+back = esc
+start = enter
+a = x
+b = w
+x = tab
+y = space
+up = w
+down = s
+left = a
+right = d
+l1 = tab
+r1 = o
+l2 = tab
+r2 = x
+left_analog_up = w
+left_analog_down = s
+left_analog_left = a
+left_analog_right = d

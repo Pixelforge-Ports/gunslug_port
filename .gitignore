@@ -1,0 +1,11 @@
+build/
+dist/
+package/gunslugs/gamedata/game.jar
+package/gunslugs/gamedata/source.json
+package/gunslugs/gamedata/assets/
+package/gunslugs/saves/
+package/gunslugs/cache/
+package/gunslugs/log.txt
+package/gunslugs/runtime/lib/
+__pycache__/
+*.apk
