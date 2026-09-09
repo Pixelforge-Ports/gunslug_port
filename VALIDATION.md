@@ -1,5 +1,34 @@
 # Validation — 9 September 2026
 
+## Bridge 0.3.0: multiple displays and generic ARM64 launcher
+
+Executed on the Windows build host with the real converted APK:
+
+- `GameplaySmoke` completed 560 frames at each of **640x480, 720x480,
+  720x720, 1024x768 and 1280x720**, including scripted menu selection,
+  movement, jump and fire. Every frame checks that APK preferences have not
+  replaced the requested physical dimensions. Six PNGs per size were checked
+  for the requested dimensions. Gameplay captures at all five sizes were
+  visually inspected; square-screen tutorial clipping found during development
+  was corrected by fitting the minimum 3:2 game view into narrower displays.
+- `VerifyDisplay` passed fitting/aspect, pointer conversion, zero-size resize,
+  default-framebuffer viewport/scissor mapping and offscreen-framebuffer
+  isolation checks. The 4:3 and square screenshots retain black bars; widescreen
+  extends the view. No additional offscreen framebuffer was introduced.
+- `tests/verify_display.sh` passed firmware-size selection for the five listed
+  resolutions plus 960x544 and 320x240, missing-size fallback, explicit override,
+  CRLF configuration, zero/invalid dimensions and unsafe input rejection.
+  This exercises resolution selection, not graphics at the two additional sizes.
+- Logs and screenshots are under `build/resolutions/<width>x<height>/`.
+
+Device-specific validation remains required for all new targets. The launcher
+now searches additional PortMaster/data paths and passes firmware orientation
+settings explicitly. Tests do not emulate firmware, GPU drivers, physical
+controllers, Java ARM64 execution, sleep/resume or on-device preparation RAM.
+The existing ARM64 requirement remains: no ARMv7 runtime or 32-bit GPU backend
+has been added. The only user-reported physical boot/gameplay result is still
+RG34XX SP with muOS using the earlier build.
+
 ## Bridge 0.2.0 follow-up
 
 User reports successful boot/gameplay on RG34XX SP with muOS, but excessive game speed. Inspection found the original Android callback sleeps to a 24 ms minimum update duration, while the desktop branch skips that wait. The previous host targeted 60 FPS. The new host enforces a minimum 24 ms update interval, without vsync or accumulated catch-up frames. This establishes a timing defect; it does not independently measure the reported 2–3× speed.

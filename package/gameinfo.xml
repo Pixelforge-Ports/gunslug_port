@@ -3,7 +3,7 @@
   <game>
     <path>./Gunslugs.sh</path>
     <name>Gunslugs (experimental)</name>
-    <desc>Experimental adaptation using owner-supplied Android game data. Requires current PortMaster, Java 17 and Westonpack. Hardware gameplay testing is pending.</desc>
+    <desc>Experimental adaptation using owner-supplied Android game data for compatible ARM64 Linux handhelds. Automatically adapts to 4:3, 3:2, square and widescreen displays. Requires PortMaster, Java 17 and Westonpack. Hardware compatibility depends on firmware and graphics drivers.</desc>
     <genre>Action</genre>
     <players>1</players>
   </game>

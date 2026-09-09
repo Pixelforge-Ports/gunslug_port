@@ -6,9 +6,10 @@
 
 GUNSLUGS_SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
-for pm_candidate in "/opt/system/Tools/PortMaster" "/opt/tools/PortMaster" \
+for pm_candidate in "${GUNSLUGS_PORTMASTER:-}" "/PortMaster" "/opt/system/Tools/PortMaster" "/opt/tools/PortMaster" \
     "/mnt/mmc/MUOS/PortMaster" "$XDG_DATA_HOME/PortMaster" \
-    "$GUNSLUGS_SCRIPT_DIR/PortMaster" "/roms/ports/PortMaster"; do
+    "$GUNSLUGS_SCRIPT_DIR/PortMaster" "/roms/ports/PortMaster" "/roms2/ports/PortMaster" \
+    "/mnt/SDCARD/Ports/PortMaster" "/mnt/SDCARD/ports/PortMaster" "/storage/roms/ports/PortMaster"; do
     if [[ -f "$pm_candidate/control.txt" ]]; then
         controlfolder="$pm_candidate"
         break
@@ -29,13 +30,15 @@ controlfolder="$GUNSLUGS_PM_ROOT"
 
 # muOS keeps port data at <card>/ports and menu scripts at <card>/roms/PORTS.
 # Prefer data on the script's own card before a firmware default or other card.
-gunslugs_candidates=("$GUNSLUGS_SCRIPT_DIR/gunslugs")
+gunslugs_candidates=("${GUNSLUGS_DATA_DIR:-}" "$GUNSLUGS_SCRIPT_DIR/gunslugs")
 case "$GUNSLUGS_SCRIPT_DIR" in
     /mnt/mmc/*) gunslugs_candidates+=("/mnt/mmc/ports/gunslugs") ;;
     /mnt/sdcard/*) gunslugs_candidates+=("/mnt/sdcard/ports/gunslugs") ;;
 esac
 [[ -n "${directory:-}" ]] && gunslugs_candidates+=("/${directory#/}/ports/gunslugs")
-gunslugs_candidates+=("/mnt/mmc/ports/gunslugs" "/mnt/sdcard/ports/gunslugs")
+gunslugs_candidates+=("/mnt/mmc/ports/gunslugs" "/mnt/sdcard/ports/gunslugs" \
+    "/mnt/SDCARD/Ports/gunslugs" "/mnt/SDCARD/ports/gunslugs" \
+    "/roms/ports/gunslugs" "/roms2/ports/gunslugs" "/storage/roms/ports/gunslugs")
 GAMEDIR=""
 for gunslugs_candidate in "${gunslugs_candidates[@]}"; do
     if [[ -d "$gunslugs_candidate" ]]; then
@@ -144,17 +147,20 @@ export HOTKEY=back
 $GPTOKEYB "java" -c "$GAMEDIR/gunslugs.gptk" &
 mapper_pid=$!
 
-# Only provide display dimensions if the firmware supplies valid values.
-display_env=()
-if [[ "${DISPLAY_WIDTH:-}" =~ ^[0-9]+$ && "${DISPLAY_HEIGHT:-}" =~ ^[0-9]+$ ]]; then
-    display_env+=("WESTON_HEADLESS_WIDTH=$DISPLAY_WIDTH" "WESTON_HEADLESS_HEIGHT=$DISPLAY_HEIGHT")
-fi
+# Firmware supplies the oriented screen size; do not guess from a device name.
+# shellcheck source-path=SCRIPTDIR
+# shellcheck source=gunslugs/display.sh
+source "$GAMEDIR/display.sh"
+gunslugs_display_setup || fail "Invalid display setting. Use auto or WIDTHxHEIGHT in resolution.txt (160..8192 pixels)."
 printf 'Firmware: %s; architecture: %s\n' "${CFW_NAME:-unknown}" "${DEVICE_ARCH:-$(uname -m)}"
 printf 'Data: %s\nSaves: %s\n' "$GAMEDIR/gamedata" "$GAMEDIR/saves"
+printf 'Device: %s; display: %s\n' "${DEVICE_NAME:-unknown}" "$gunslugs_display_description"
 cd "$GAMEDIR/gamedata/assets" || fail "Cannot open the asset directory."
 weston_started=1
 run_privileged env "SDL_GAMECONTROLLERCONFIG=$SDL_GAMECONTROLLERCONFIG" \
     "SDL_GAMECONTROLLERCONFIG_FILE=${SDL_GAMECONTROLLERCONFIG_FILE:-}" \
+    "SDL_KMSDRM_ORIENTATION=${SDL_KMSDRM_ORIENTATION:-}" \
+    "SDL_KMSDRM_ROTATION=${SDL_KMSDRM_ROTATION:-}" \
     "${display_env[@]}" "$weston_dir/westonwrap.sh" headless noop kiosk crusty_glx_gl4es \
     "PATH=$PATH" "JAVA_HOME=$JAVA_HOME" "HOME=$GAMEDIR/saves" \
     "XDG_DATA_HOME=$GAMEDIR/saves" "XDG_CONFIG_HOME=$GAMEDIR/saves/config" \
@@ -162,7 +168,8 @@ run_privileged env "SDL_GAMECONTROLLERCONFIG=$SDL_GAMECONTROLLERCONFIG" \
     "$JAVA_HOME/bin/java" -Xms32m -Xmx256m -XX:+UseSerialGC \
     "-Duser.home=$GAMEDIR/saves" "-Djava.io.tmpdir=$GAMEDIR/cache" \
     "-Dgunslugs.gamedir=$GAMEDIR" "-Dgunslugs.assets=$GAMEDIR/gamedata/assets" \
-    "-Dgunslugs.saves=$GAMEDIR/saves" -Dgunslugs.fullscreen=true \
+    "-Dgunslugs.saves=$GAMEDIR/saves" -Dgunslugs.fullscreen=true -Dgunslugs.lockDisplay=true \
+    "${display_java[@]}" \
     -cp "$GAMEDIR/runtime/lib/*:$GAMEDIR/gamedata/game.jar" \
     org.portmaster.gunslugs.Main
 game_status=$?

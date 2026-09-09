@@ -1,8 +1,28 @@
 # Gunslugs for PortMaster
 
-An experimental **Gunslugs 3.2.4** port targeting **Anbernic RG34XX SP with muOS**, with an AArch64 PortMaster launcher for other compatible Linux firmware. This uses the supplied Android APK's Java game code through a desktop libGDX bridge. It is not an Android emulator.
+An experimental **Gunslugs 3.2.4** port for **ARM64 Linux handhelds running compatible PortMaster firmware**, with automatic display sizing. This uses the supplied Android APK's Java game code through a desktop libGDX bridge. It is not an Android emulator.
 
-**Current evidence:** the converted game boots, renders its title/menu and tutorial gameplay, and responds to scripted movement, jump and fire input on Windows through the same Java bridge. Physical ARM/muOS graphics, performance, controller mapping, audio output, suspend and exit still need handheld testing. R36S/ArkOS support is a secondary, untested target; 32-bit firmware is unsupported.
+**Current evidence:** the user reports boot and gameplay on RG34XX SP/muOS. Desktop checks cover the Java bridge and scripted movement, jump and fire. The new display handling still needs physical-device verification; other models are compatibility targets, not certified devices. 32-bit firmware is unsupported.
+
+## Handhelds and screen resolutions (bridge 0.3.0)
+
+The launcher uses PortMaster's detected screen dimensions and controller mapping, without a device-model allowlist. It searches common PortMaster/data locations used by muOS, ArkOS/dArkOS, AmberELEC, ROCKNIX, KNULLI and TrimUI firmware. Each firmware must provide working PortMaster, Java 17 and Westonpack support; installing this ZIP cannot supply missing GPU drivers or firmware runtime support.
+
+| Resolution | Aspect ratio | Example display targets |
+| --- | --- | --- |
+| 640×480 | 4:3 | RG35XX family with compatible 64-bit firmware, RG35XX+, RG35XX H, RG40XX, R36S |
+| 720×480 | 3:2 | RG34XX SP, RG34XX |
+| 720×720 | 1:1 | RG CubeXX, other square-screen handhelds |
+| 1024×768 | 4:3 | TrimUI Brick |
+| 1280×720 | 16:9 | TrimUI Smart Pro |
+
+These are not fixed resolution presets: other reported sizes also use the same resize path. The bridge fits a minimum 3:2 game view into the screen without stretching or cropping. Square and 4:3 displays have black bars above and below; wider displays gain a wider game view. This preserves tutorial text and HUD content that clipped when the original game rendered directly into a square view. Rendering uses a 480-pixel-high logical view and scales the final output to the display, leaving the game's offscreen textures unchanged. It prevents the APK's old desktop resolution/fullscreen settings from replacing the handheld mode. The 24 ms speed limiter remains independent of resolution and refresh rate.
+
+**Hardware requirements:** AArch64/ARM64 kernel and 64-bit userland, the bundled native libraries' minimum glibc 2.27, working graphics through Westonpack's GLX/GL4ES route, and enough memory for Java and the game. The Java runtime can impose additional requirements. Original 32-bit-only RG35XX hardware/firmware and other ARMv7-only systems are not supported; resolution support alone does not add CPU/GPU compatibility. See the upstream [Westonpack platform matrix](https://github.com/binarycounter/Westonpack/wiki) and [LibGDX runtime requirements](https://github.com/binarycounter/Westonpack/wiki/LibGDX-Example).
+
+Usually no display configuration is needed. If firmware reports the wrong size, create `gunslugs/resolution.txt` containing one line such as `720x720`, `640x480`, or `1280x720`, then restart. Use `auto` or remove the file to restore detection. Values must be between 160 and 8192 pixels per dimension; this validates input, not a guarantee that a device can render every size. Keep the display in its firmware-provided orientation. The log records the requested size and actual `GAME_RESIZE_OK` size.
+
+Advanced launcher overrides: `GUNSLUGS_RESOLUTION=WIDTHxHEIGHT` takes priority over the file; `GUNSLUGS_PORTMASTER` and `GUNSLUGS_DATA_DIR` can point to unusual install locations. If PortMaster supplies no valid dimensions, Weston chooses its display mode. On a desktop test run, `-Dgunslugs.width=640 -Dgunslugs.height=480` selects the window size; `-Dgunslugs.lockDisplay=false` restores the APK's desktop mode-switching behavior.
 
 ## Install on your RG34XX SP
 
@@ -82,6 +102,8 @@ Run each command only after the previous command succeeds. Dependency versions a
 The builder compiles the desktop bridge and on-device preparation tools, converts your APK, extracts its assets, and writes the install ZIPs into `dist/`. No ARM cross-compiler is required: the Java code is compiled on your computer, and the downloaded runtime libraries include Linux ARM64 natives. The source archive intentionally omits the generated runtime and game data, so a fresh source checkout must complete the full build before packaging.
 
 `verify_package.py` should print `PACKAGE_VERIFICATION_OK archives=4`. It checks ZIP integrity, launcher layout, executable permissions, required payloads and exclusion of game data from the bring-your-own-data packages. This does not replace testing the port on a handheld.
+
+For display development, `bash tests/verify_display.sh` checks resolution selection and invalid settings. On the Windows build host, `python tools/verify_resolutions.py --jdk "C:/tools/jdk8"` runs the real game at all five listed sizes and saves logs and screenshots under `build/resolutions/`. It requires working desktop graphics and prepared game data. A Linux desktop needs matching native libraries for that desktop architecture; the install package ships ARM64 natives.
 
 ### 3. Choose the generated ZIP
 

@@ -21,6 +21,8 @@ public final class Main extends ApplicationAdapter {
     private final Map<String, Method> callbacks = new HashMap<>();
     private int frames;
     private boolean created;
+    private final boolean lockDisplay = Boolean.parseBoolean(System.getProperty("gunslugs.lockDisplay", "true"));
+    private final DisplayLayout layout = new DisplayLayout();
     private long startNanos;
     private final FramePacer pacer = new FramePacer(Integer.getInteger("gunslugs.frameMillis", 24));
     private final int smokeFrames = Integer.getInteger("gunslugs.smokeFrames", 0);
@@ -28,12 +30,16 @@ public final class Main extends ApplicationAdapter {
     private final Path saves = Paths.get(System.getProperty("gunslugs.saves", "saves")).toAbsolutePath();
 
     public static void main(String[] args) {
-        System.out.println("Gunslugs desktop bridge 0.2.0 | " + System.getProperty("os.name") + " " + System.getProperty("os.arch"));
+        System.out.println("Gunslugs desktop bridge 0.3.0 | " + System.getProperty("os.name") + " " + System.getProperty("os.arch"));
         System.out.println("Game update interval: " + Integer.getInteger("gunslugs.frameMillis", 24) + " ms");
         Lwjgl3ApplicationConfiguration cfg = new Lwjgl3ApplicationConfiguration();
         cfg.setTitle("Gunslugs");
         cfg.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL20, 2, 0);
-        cfg.setWindowedMode(Integer.getInteger("gunslugs.width", 720), Integer.getInteger("gunslugs.height", 480));
+        int width = Integer.getInteger("gunslugs.width", 640);
+        int height = Integer.getInteger("gunslugs.height", 480);
+        if (width < 160 || height < 160 || width > 8192 || height > 8192)
+            throw new IllegalArgumentException("Display dimensions must be 160..8192 pixels");
+        cfg.setWindowedMode(width, height);
         cfg.setResizable(false);
         cfg.setForegroundFPS(0);
         cfg.setIdleFPS(30);
@@ -46,12 +52,13 @@ public final class Main extends ApplicationAdapter {
 
     @Override public void create() {
         try {
+            layout.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             services = new Services(assets, saves);
             Object graphics = graphics();
             Object input = input();
             setGlobal("b", graphics); setGlobal("c", services.audio()); setGlobal("d", input);
             setGlobal("e", services.files()); setGlobal("f", services.net());
-            Object gl = GlBridge.create(); setGlobal("g", gl); setGlobal("h", gl); setGlobal("i", null);
+            Object gl = GlBridge.create(layout); setGlobal("g", gl); setGlobal("h", gl); setGlobal("i", null);
             // The desktop backend loaded gdx. APK JNI wrappers share that library.
             setBoolean("x.e", "a", true);
             // APK-supported empty controller manager: PortMaster supplies keyboard input.
@@ -64,6 +71,9 @@ public final class Main extends ApplicationAdapter {
             for (Method method : listener.getMethods()) callbacks.put(method.getName(), method);
             invokeGame("e");
             created = true;
+            // APK preferences can request a desktop mode during create(). Always
+            // initialize its framebuffer using the actual drawable dimensions.
+            resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             startNanos = System.nanoTime();
             System.out.println("GAME_CREATE_OK " + Gdx.graphics.getWidth() + "x" + Gdx.graphics.getHeight());
         } catch (Exception e) { throw failure("initialization", e); }
@@ -71,6 +81,9 @@ public final class Main extends ApplicationAdapter {
 
     @Override public void render() {
         pacer.awaitFrame();
+        Gdx.gl.glDisable(com.badlogic.gdx.graphics.GL20.GL_SCISSOR_TEST);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT);
         invokeGame("f");
         frames++;
         if (smokeFrames > 0 && frames >= smokeFrames) {
@@ -84,7 +97,16 @@ public final class Main extends ApplicationAdapter {
             Gdx.app.exit();
         }
     }
-    @Override public void resize(int width, int height) { if (created) invokeGame("d", width, height); }
+    @Override public void resize(int width, int height) {
+        // Minimized windows can report zero; the APK divides by height / 160.
+        if (created && width >= 160 && height >= 160) {
+            layout.resize(width, height);
+            invokeGame("d", layout.gameWidth, layout.gameHeight);
+            System.out.println("GAME_RESIZE_OK " + width + "x" + height
+                + " view=" + layout.gameWidth + "x" + layout.gameHeight
+                + " viewport=" + layout.width + "x" + layout.height);
+        }
+    }
     @Override public void pause() { if (created) { invokeGame("c"); flush(); } }
     @Override public void resume() { pacer.reset(); if (created) invokeGame("b"); }
     @Override public void dispose() {
@@ -118,29 +140,33 @@ public final class Main extends ApplicationAdapter {
     }
     private Object displayMode(Graphics.DisplayMode mode) throws Exception {
         Constructor<?> ctor = Class.forName("i.i$b").getDeclaredConstructor(int.class,int.class,int.class,int.class);
-        ctor.setAccessible(true); return ctor.newInstance(mode.width,mode.height,mode.refreshRate,mode.bitsPerPixel);
+        ctor.setAccessible(true); return ctor.newInstance(
+            lockDisplay ? layout.gameWidth : mode.width,
+            lockDisplay ? layout.gameHeight : mode.height, mode.refreshRate,mode.bitsPerPixel);
     }
     private Object graphics() throws Exception {
         return proxy("i.i", (self, method, a) -> {
             switch (method.getName()) {
-                case "b": return Gdx.graphics.getWidth();
-                case "c": return Gdx.graphics.getHeight();
-                case "e": return Gdx.graphics.getBackBufferWidth();
-                case "n": return Gdx.graphics.getBackBufferHeight();
+                case "b": return layout.gameWidth;
+                case "c": return layout.gameHeight;
+                case "e": return layout.gameWidth;
+                case "n": return layout.gameHeight;
                 case "f": return Gdx.graphics.supportsExtension((String)a[0]);
                 case "g": return displayMode(Gdx.graphics.getDisplayMode());
                 case "h": Gdx.graphics.requestRendering(); return null;
-                case "i": return Gdx.graphics.supportsDisplayModeChange();
-                case "j": return Gdx.graphics.setWindowedMode((Integer)a[0],(Integer)a[1]);
+                case "i": return !lockDisplay && Gdx.graphics.supportsDisplayModeChange();
+                case "j": return !lockDisplay && Gdx.graphics.setWindowedMode((Integer)a[0],(Integer)a[1]);
                 case "k": return Gdx.graphics.isFullscreen();
                 case "m": return false;
                 case "l": {
-                    Graphics.DisplayMode[] modes = Gdx.graphics.getDisplayModes();
+                    Graphics.DisplayMode[] modes = lockDisplay
+                        ? new Graphics.DisplayMode[]{Gdx.graphics.getDisplayMode()} : Gdx.graphics.getDisplayModes();
                     Object out = Array.newInstance(Class.forName("i.i$b"), modes.length);
                     for (int i=0;i<modes.length;i++) Array.set(out,i,displayMode(modes[i]));
                     return out;
                 }
                 case "d": {
+                    if (lockDisplay) return false;
                     int width = a[0].getClass().getField("a").getInt(a[0]);
                     int height = a[0].getClass().getField("b").getInt(a[0]);
                     for (Graphics.DisplayMode mode:Gdx.graphics.getDisplayModes())
@@ -161,7 +187,7 @@ public final class Main extends ApplicationAdapter {
         for (Method m:Class.forName("i.k").getMethods()) inputCallbacks.put(m.getName(),m);
         return proxy("i.j", (self, method, a) -> {
             switch (method.getName()) {
-                case "c": Gdx.input.setCursorPosition((Integer)a[0],(Integer)a[1]); return null;
+                case "c": Gdx.input.setCursorPosition(layout.cursorX((Integer)a[0]),layout.cursorY((Integer)a[1])); return null;
                 case "d": return Gdx.input.isKeyJustPressed((Integer)a[0]);
                 case "e": return 0;
                 case "g": Gdx.input.setCatchKey((Integer)a[0],(Boolean)a[1]); return null;
@@ -173,11 +199,11 @@ public final class Main extends ApplicationAdapter {
                         public boolean keyDown(int key) { return inputEvent("b",key); }
                         public boolean keyUp(int key) { return inputEvent("i",key); }
                         public boolean keyTyped(char c) { return inputEvent("a",c); }
-                        public boolean touchDown(int x,int y,int p,int b) { return inputEvent("c",x,y,p,b); }
-                        public boolean touchUp(int x,int y,int p,int b) { return inputEvent("f",x,y,p,b); }
-                        public boolean touchCancelled(int x,int y,int p,int b) { return inputEvent("e",x,y,p,b); }
-                        public boolean touchDragged(int x,int y,int p) { return inputEvent("h",x,y,p); }
-                        public boolean mouseMoved(int x,int y) { return inputEvent("d",x,y); }
+                        public boolean touchDown(int x,int y,int p,int b) { return inputEvent("c",layout.inputX(x),layout.inputY(y),p,b); }
+                        public boolean touchUp(int x,int y,int p,int b) { return inputEvent("f",layout.inputX(x),layout.inputY(y),p,b); }
+                        public boolean touchCancelled(int x,int y,int p,int b) { return inputEvent("e",layout.inputX(x),layout.inputY(y),p,b); }
+                        public boolean touchDragged(int x,int y,int p) { return inputEvent("h",layout.inputX(x),layout.inputY(y),p); }
+                        public boolean mouseMoved(int x,int y) { return inputEvent("d",layout.inputX(x),layout.inputY(y)); }
                         public boolean scrolled(float x,float y) { return inputEvent("g",x,y); }
                     });
                     return null;

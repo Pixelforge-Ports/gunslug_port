@@ -13,6 +13,11 @@ public final class GlBridge {
     private GlBridge() { }
 
     public static Object create() throws ReflectiveOperationException {
+        return create(null);
+    }
+
+    public static Object create(DisplayLayout layout) throws ReflectiveOperationException {
+        final int[] framebuffer = {0};
         Class<?> apkInterface = Class.forName("p.e");
         Map<String, String> names = new HashMap<>();
         names.put("A", "glDeleteTexture");
@@ -95,6 +100,14 @@ public final class GlBridge {
                 }
                 GL20 backend = Gdx.gl20;
                 if (backend == null) throw new IllegalStateException("Desktop GL20 is not initialized");
+                if (layout != null) {
+                    if (method.getName().equals("E")) framebuffer[0] = (Integer)args[1];
+                    // APK-owned offscreen targets keep their original pixel coordinates.
+                    if (framebuffer[0] == 0 && (method.getName().equals("I") || method.getName().equals("w"))) {
+                        args = new Object[]{layout.viewportX((Integer)args[0]), layout.viewportY((Integer)args[1]),
+                            layout.viewportWidth((Integer)args[2]), layout.viewportHeight((Integer)args[3])};
+                    }
+                }
                 try {
                     return targets.get(method).invoke(backend, args);
                 } catch (InvocationTargetException failure) {

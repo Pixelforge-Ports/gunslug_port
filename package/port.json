@@ -6,9 +6,9 @@
   "attr": {
     "title": "Gunslugs (experimental APK adaptation)",
     "porter": [],
-    "desc": "Experimental Java/libGDX adaptation of owner-supplied Gunslugs Android data for AArch64 Linux handhelds. Device gameplay validation is pending.",
+    "desc": "Experimental Java/libGDX adaptation of owner-supplied Gunslugs Android data for compatible AArch64 Linux handhelds. Automatic screen sizing supports 4:3, 3:2, square and widescreen displays. Device validation varies by firmware.",
     "desc_md": null,
-    "inst": "Prepare your own compatible APK on a PC using this project's build/preparation tools. On muOS copy gunslugs into /ports and Gunslugs.sh into /roms/PORTS on the SD card. On ArkOS/dArkOS place both together in the ports folder. Current PortMaster, Westonpack and Java 17 runtimes are required. No original game content is distributed.",
+    "inst": "Place Gunslugs.sh beside gunslugs in your firmware's ports folder. On muOS put gunslugs in /ports and the launcher in /roms/PORTS. Copy your supported APK to gunslugs/gunslugs.apk for first-launch preparation, or use your privately prepared data. Requires 64-bit ARM Linux, compatible graphics, PortMaster, Westonpack and Java 17. Screen size is detected automatically; resolution.txt can override it. No original game content is distributed.",
     "inst_md": null,
     "genres": ["action", "platformer"],
     "image": null,

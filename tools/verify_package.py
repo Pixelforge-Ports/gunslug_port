@@ -21,12 +21,16 @@ def verify():
             assert z.getinfo(script).external_attr>>16 & 0o111, 'Launcher execute bit missing'
             assert prefix+'gunslugs/runtime/lib/gunslugs-bridge.jar' in names
             assert prefix+'gunslugs/runtime/prepare/gunslugs-prepare.jar' in names
+            assert prefix+'gunslugs/display.sh' in names
+            assert b'\r' not in z.read(prefix+'gunslugs/display.sh')
+            assert z.getinfo(prefix+'gunslugs/display.sh').external_attr>>16 & 0o111
             assert prefix+'gunslugs/licenses/PORT-LICENSE.txt' in names
             assert prefix+'gunslugs/port.json' in names
             assert all(n == script or n.startswith(prefix+'gunslugs/') for n in names)
             assert not any('natives-windows' in n or n.endswith(('.apk','/log.txt')) or '/cache/' in n or '/saves/' in n or '/build/' in n for n in names)
             bridge=zipfile.ZipFile(io.BytesIO(z.read(prefix+'gunslugs/runtime/lib/gunslugs-bridge.jar')))
             assert 'org/portmaster/gunslugs/Main.class' in bridge.namelist()
+            assert 'org/portmaster/gunslugs/DisplayLayout.class' in bridge.namelist()
             assert not any('Smoke' in n or 'VerifyBridge' in n for n in bridge.namelist())
             if private:
                 assert prefix+'gunslugs/gamedata/assets/logo.png' in names

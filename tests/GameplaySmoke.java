@@ -13,7 +13,8 @@ public final class GameplaySmoke extends ApplicationAdapter {
     private int frame;
     public static void main(String[] args) {
         Lwjgl3ApplicationConfiguration c=new Lwjgl3ApplicationConfiguration();
-        c.setWindowedMode(720,480); c.setInitialVisible(false); c.setForegroundFPS(60);
+        c.setWindowedMode(Integer.getInteger("gunslugs.width",720),Integer.getInteger("gunslugs.height",480));
+        c.setInitialVisible(false); c.setForegroundFPS(0); c.useVsync(false);
         c.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL20,2,0);
         new Lwjgl3Application(new GameplaySmoke(),c);
     }
@@ -32,6 +33,9 @@ public final class GameplaySmoke extends ApplicationAdapter {
     }
     public void render() {
         ++frame;
+        if (Gdx.graphics.getWidth()!=Integer.getInteger("gunslugs.width",720)
+                || Gdx.graphics.getHeight()!=Integer.getInteger("gunslugs.height",480))
+            throw new AssertionError("Game preferences changed the requested screen size");
         if(frame==100||frame==180||frame==260||frame==340) key(Input.Keys.X,true);
         if(frame==102||frame==182||frame==262||frame==342) key(Input.Keys.X,false);
         if(frame==410){key(Input.Keys.D,true);key(Input.Keys.X,true);}

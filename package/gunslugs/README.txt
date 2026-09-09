@@ -1,9 +1,10 @@
 GUNSLUGS — EXPERIMENTAL PORTMASTER ADAPTATION
 
 This is a work-in-progress Android/libGDX adaptation. Hardware gameplay testing
-is pending. It is intended for AArch64 firmware with current PortMaster,
-including muOS on an RG34XX SP and ArkOS/dArkOS on R36S. These are targets,
-not claims of working device compatibility. Original 32-bit RG35XX firmware
+is pending for the new display handling. It targets compatible AArch64 firmware
+with PortMaster on Anbernic, R36S, TrimUI and other ARM64 Linux handhelds.
+The user reports boot/gameplay on RG34XX SP/muOS; other models need testing.
+Original 32-bit RG35XX firmware
 and other 32-bit userlands are outside this package's scope.
 
 INSTALL
@@ -56,3 +57,16 @@ SPEED FIX (0.2.0)
 The bridge restores the Android minimum 24 ms update interval (about 41.7
 updates/second), independent of vsync. Existing game data can be reused.
 Actual speed and APK preparation memory/time need handheld verification.
+
+DISPLAY SUPPORT (0.3.0)
+Automatic sizing covers 640x480, 720x480, 720x720, 1024x768 and 1280x720,
+and uses the same fitting logic for other screen sizes. Square and 4:3 screens
+fit the minimum 3:2 game view with black bars; widescreen expands the view.
+This preserves the game's tutorial text/HUD without stretching or cropping.
+The original desktop resolution settings cannot override the handheld mode.
+If detection is wrong, create resolution.txt in this directory containing
+one line such as 720x720. Use auto or remove the file to restore detection.
+The requested size and actual game viewport are recorded in log.txt.
+The port still requires 64-bit ARM userland, compatible GPU drivers, glibc
+2.27 or newer for its native libraries, Java 17 and Westonpack. It cannot run
+on every ARM Linux device solely because the screen resolution is listed.

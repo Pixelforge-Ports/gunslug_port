@@ -7,7 +7,8 @@ The APK inspection found libGDX and FreeType support libraries, while the game
 logic resides in DEX bytecode. Loading `libgdx.so` cannot run that Java game.
 The package therefore targets Java 17, the desktop libGDX/LWJGL3 backend, Linux
 AArch64 native libraries and PortMaster's Westonpack display environment.
-The game bytecode and assets are prepared from the owner's APK on a PC.
+The game bytecode and assets are prepared from the owner's APK on a PC or
+on first launch using the bundled Java preparation tools.
 
 ## Implemented launch contract
 
@@ -48,11 +49,31 @@ Port metadata uses the version-4 runtime array shown in a current
 [PortMaster port.json](https://github.com/PortsMaster/PortMaster-New/blob/main/ports/6feetunder/port.json).
 It is explicitly marked experimental and not ready-to-run without owner data.
 
+## Display and device handling (0.3.0)
+
+The launcher searches common PortMaster and game-data locations, including
+TrimUI's /mnt/SDCARD, /PortMaster, /roms2 and /storage/roms. It uses the firmware
+helpers for controls and display dimensions; no handheld model allowlist is
+applied. PortMaster's [device information helper](https://github.com/PortsMaster/PortMaster-GUI/blob/main/PortMaster/device_info.txt)
+provides DISPLAY_WIDTH and DISPLAY_HEIGHT. Valid values are passed to both
+Weston's headless display and the Java host. A resolution.txt override is
+parsed as data, not executed as shell code. SDL orientation/rotation settings
+are passed through the privilege boundary; the launcher does not guess rotation.
+
+The desktop bridge fixes the selected display mode, ignoring the game's old
+desktop mode changes. DisplayLayout fits a minimum 720x480 logical view into
+the screen, extending its width for widescreen. Square/4:3 displays get black
+bars to prevent tutorial/HUD clipping. GlBridge adjusts viewport and scissor
+coordinates only while the default framebuffer is bound; the APK's offscreen
+textures retain their original dimensions. Pointer coordinates use the inverse
+transform. The speed limiter does not depend on screen size or refresh rate.
+
 ## Scope and unresolved verification
 
-muOS on RG34XX SP and AArch64 ArkOS/dArkOS on R36S are targets. The Westonpack
-compatibility matrix lists corresponding firmware display routes, but that
-does not prove this particular game or package works. Startup, rendered
+Compatible ARM64 firmware on Anbernic, R36S, TrimUI and other Linux handhelds
+is targeted. The user reports boot/gameplay on RG34XX SP with muOS. The Westonpack
+compatibility matrix lists several firmware display routes, but that
+does not prove this particular game or package works on each device. Startup, rendered
 frames, audio, input, save persistence, memory use and shutdown all require
 hardware verification. Original 32-bit-only firmware is not supported by this
 AArch64 package. Matching Linux natives are needed even when the original APK
