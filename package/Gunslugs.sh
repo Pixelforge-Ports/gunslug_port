@@ -64,7 +64,7 @@ fail() {
         pm_message "Gunslugs: $* See gunslugs/log.txt."
     fi
     sleep 5
-    exit 1
+    cleanup 1
 }
 
 # ESUDO and GPTOKEYB are command-and-option strings provided by PortMaster.
@@ -75,16 +75,10 @@ export JAVA_HOME="/tmp/gunslugs-java"
 weston_mounted=0
 java_mounted=0
 weston_started=0
-mapper_pid=""
-# Called indirectly by the EXIT trap, including startup failures.
+# Release mounted runtimes, then let PortMaster finish the session.
 # shellcheck disable=SC2329
 cleanup() {
-    local status=$?
-    trap - EXIT INT TERM
-    if [[ -n "$mapper_pid" ]]; then
-        kill "$mapper_pid" 2>/dev/null || true
-        wait "$mapper_pid" 2>/dev/null || true
-    fi
+    local status=${1:-0}
     if [[ "$weston_started" == 1 ]]; then
         run_privileged "$weston_dir/westonwrap.sh" cleanup || true
     fi
@@ -95,9 +89,6 @@ cleanup() {
     if declare -F pm_finish >/dev/null; then pm_finish; fi
     exit "$status"
 }
-trap cleanup EXIT
-trap 'exit 130' INT
-trap 'exit 143' TERM
 
 case "${DEVICE_ARCH:-$(uname -m)}" in
     aarch64|arm64) ;;
@@ -145,17 +136,17 @@ export SDL_GAMECONTROLLERCONFIG="${sdl_controllerconfig:-${SDL_GAMECONTROLLERCON
 [[ -n "${GPTOKEYB:-}" ]] || fail "The PortMaster controller mapper is unavailable. Update PortMaster."
 export HOTKEY=back
 $GPTOKEYB "java" -c "$GAMEDIR/gunslugs.gptk" &
-mapper_pid=$!
 
 # Firmware supplies the oriented screen size; do not guess from a device name.
 # shellcheck source-path=SCRIPTDIR
-# shellcheck source=gunslugs/display.sh
-source "$GAMEDIR/display.sh"
+# shellcheck source=gunslugs/display.inc
+source "$GAMEDIR/display.inc"
 gunslugs_display_setup || fail "Invalid display setting. Use auto or WIDTHxHEIGHT in resolution.txt (160..8192 pixels)."
 printf 'Firmware: %s; architecture: %s\n' "${CFW_NAME:-unknown}" "${DEVICE_ARCH:-$(uname -m)}"
 printf 'Data: %s\nSaves: %s\n' "$GAMEDIR/gamedata" "$GAMEDIR/saves"
 printf 'Device: %s; display: %s\n' "${DEVICE_NAME:-unknown}" "$gunslugs_display_description"
 cd "$GAMEDIR/gamedata/assets" || fail "Cannot open the asset directory."
+pm_platform_helper "$JAVA_HOME/bin/java"
 weston_started=1
 run_privileged env "SDL_GAMECONTROLLERCONFIG=$SDL_GAMECONTROLLERCONFIG" \
     "SDL_GAMECONTROLLERCONFIG_FILE=${SDL_GAMECONTROLLERCONFIG_FILE:-}" \
@@ -177,4 +168,4 @@ printf 'Gunslugs exited with status %s\n' "$game_status"
 if [[ "$game_status" != 0 ]]; then
     fail "The game stopped with error $game_status. Keep log.txt for diagnosis."
 fi
-exit 0
+cleanup 0

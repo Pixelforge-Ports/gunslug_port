@@ -84,7 +84,7 @@ Replace the JDK and dex2jar paths below with the directories you extracted. Pass
 ```powershell
 python tools/fetch_dependencies.py
 python tools/fetch_licenses.py
-python tools/build.py --apk "../Gunslugs 3.2.4.apk" --jdk "C:/tools/jdk8" --dex-tools "C:/tools/dex-tools-v2.4"
+python tools/build.py --apk "/path/to/Gunslugs 3.2.4.apk" --jdk "C:/tools/jdk8" --dex-tools "C:/tools/dex-tools-v2.4"
 python tools/verify_package.py
 ```
 
@@ -93,7 +93,7 @@ python tools/verify_package.py
 ```bash
 python3 tools/fetch_dependencies.py
 python3 tools/fetch_licenses.py
-python3 tools/build.py --apk "../Gunslugs 3.2.4.apk" --jdk "/path/to/jdk" --dex-tools "/path/to/dex-tools-v2.4"
+python3 tools/build.py --apk "/path/to/Gunslugs 3.2.4.apk" --jdk "/path/to/jdk" --dex-tools "/path/to/dex-tools-v2.4"
 python3 tools/verify_package.py
 ```
 
@@ -155,3 +155,14 @@ See [VALIDATION.md](VALIDATION.md) for actual checks and remaining device checks
 This follows [Westonpack's LibGDX example](https://github.com/binarycounter/Westonpack/wiki/LibGDX-Example) and [muOS's PortMaster layout](https://muos.dev/installation/portmaster).
 
 Adapter code is MIT licensed. Game content remains the property of OrangePixel. Dependency licenses and source information are in `package/gunslugs/licenses/`.
+
+## PortMaster repository packaging
+
+The build now exports `ports/gunslugs/` using PortMaster's repository layout, including `port.json`, `README.md`, `gameinfo.xml`, a 640x480 gameplay screenshot, the launcher and `gunslugs/` payload. This generated directory contains only the public BYO payload. `package/` remains private build staging and can contain owner game files; never copy it into a PortMaster submission.
+
+After building the host, run `python tools/build.py --package-only`. It also creates:
+
+- `dist/gunslugs.zip`: the public install ZIP, with catalogue metadata inside the game folder.
+- `dist/gunslugs-portmaster-submission.zip`: the public `ports/gunslugs/` tree for local review or later use.
+
+The existing BYO, private and source ZIPs remain available. The source ZIP contains build inputs and the exporter; rebuilding regenerates the public tree. The layout ZIP contains no owner game data. Nothing is uploaded by the build. See [PortMaster packaging instructions](docs/portmaster-packaging.md) and [validation](VALIDATION.md).

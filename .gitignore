@@ -9,3 +9,6 @@ package/gunslugs/log.txt
 package/gunslugs/runtime/lib/
 __pycache__/
 *.apk
+
+# Generated public PortMaster export
+/ports/

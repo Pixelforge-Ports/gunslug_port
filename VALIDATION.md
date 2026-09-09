@@ -70,3 +70,7 @@ This is an **experimental device test build**, not a claim of a completed hardwa
 On the handheld, check title/menu visibility at 720×480, A confirm/fire, B jump, movement and release, sound/music, progress after relaunch, Start+Select exit, and sleep/resume. If anything fails, preserve `ports/gunslugs/log.txt` and report which step failed. Do not assume other Anbernic XX models or R36S firmware have been tested.
 
 Windows sandbox detail: Java 8 reported AccessDeniedException when resolving some allowed workspace paths (including dex2jar's ZIP filesystem close). The output jar was valid; subsequent class/asset verification and graphical tests ran with approved filesystem access and passed. This is a host build detail, not a handheld result.
+
+## PortMaster packaging update
+
+The public exports were checked together using upstream `tools/build_release.py --do-check`: 13 new ports, zero broken ports, exit 0. The official checker ran in an isolated repository fixture; the current upstream name list was checked separately for collisions. This checks repository structure, not device playability. Local source and package checks cover matching metadata, 640x480 screenshots, LF controls, paid/BYO boundaries and checksums. The launcher now delegates controller cleanup to pm_finish and invokes pm_platform_helper before Java. Physical launch testing remains required.

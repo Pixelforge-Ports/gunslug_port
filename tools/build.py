@@ -55,6 +55,8 @@ def package():
     with zipfile.ZipFile(dist/'gunslugs-speed-fix-muos.zip','w') as out:
         add_zip(out,ROOT/'package/gunslugs/runtime/lib/gunslugs-bridge.jar',
                 'ports/gunslugs/runtime/lib/gunslugs-bridge.jar')
+    from portmaster_package import export
+    export(ROOT)
     with zipfile.ZipFile(dist/'gunslugs-port-source.zip','w') as out:
         for source in sorted(ROOT.rglob('*')):
             if not source.is_file(): continue

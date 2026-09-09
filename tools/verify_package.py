@@ -21,9 +21,9 @@ def verify():
             assert z.getinfo(script).external_attr>>16 & 0o111, 'Launcher execute bit missing'
             assert prefix+'gunslugs/runtime/lib/gunslugs-bridge.jar' in names
             assert prefix+'gunslugs/runtime/prepare/gunslugs-prepare.jar' in names
-            assert prefix+'gunslugs/display.sh' in names
-            assert b'\r' not in z.read(prefix+'gunslugs/display.sh')
-            assert z.getinfo(prefix+'gunslugs/display.sh').external_attr>>16 & 0o111
+            assert prefix+'gunslugs/display.inc' in names
+            assert b'\r' not in z.read(prefix+'gunslugs/display.inc')
+            assert (z.getinfo(prefix+'gunslugs/display.inc').external_attr>>16 & 0o777) == 0o644
             assert prefix+'gunslugs/licenses/PORT-LICENSE.txt' in names
             assert prefix+'gunslugs/port.json' in names
             assert all(n == script or n.startswith(prefix+'gunslugs/') for n in names)
