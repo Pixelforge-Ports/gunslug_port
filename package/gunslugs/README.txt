@@ -7,7 +7,8 @@ not claims of working device compatibility. Original 32-bit RG35XX firmware
 and other 32-bit userlands are outside this package's scope.
 
 INSTALL
-1. Use the project's PC build/preparation tools with your own compatible APK.
+1. Use prepared private data, or copy your supported APK as gunslugs/gunslugs.apk.
+   The new launcher prepares missing game data on first launch using Java.
 2. For muOS (including RG34XX SP), extract the muOS package into the SD card
    root: data goes in /ports/gunslugs and the menu script in
    /roms/PORTS/Gunslugs.sh. The launcher prefers data on its own SD card.
@@ -19,8 +20,10 @@ INSTALL
 4. Launch Gunslugs from Ports. A missing runtime is requested on first launch.
    Network access is required only if the runtime has not yet been installed.
 
-An APK alone does not run from this folder. The PC preparation step creates
-gamedata/game.jar and gamedata/assets, and the build supplies runtime/lib/*.jar.
+First-launch preparation creates gamedata/game.jar and gamedata/assets.
+It requires the exact supported APK fingerprint from the project README.
+Allow several minutes; do not power off. The original APK is retained.
+The package supplies runtime/lib and runtime/prepare; no device compiler is needed.
 The Android libgdx.so files are not Linux desktop native libraries.
 
 CONTROLS (MOVEMENT/JUMP/FIRE CHECKED ON PC; DEVICE TESTING PENDING)
@@ -48,3 +51,8 @@ Do not delete the saves folder during an update.
 
 No original game code or assets are licensed by this port. Only use data from
 your own copy; prepared game.jar and assets remain private game data.
+
+SPEED FIX (0.2.0)
+The bridge restores the Android minimum 24 ms update interval (about 41.7
+updates/second), independent of vsync. Existing game data can be reused.
+Actual speed and APK preparation memory/time need handheld verification.

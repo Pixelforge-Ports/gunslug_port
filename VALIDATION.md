@@ -1,5 +1,19 @@
 # Validation — 9 September 2026
 
+## Bridge 0.2.0 follow-up
+
+User reports successful boot/gameplay on RG34XX SP with muOS, but excessive game speed. Inspection found the original Android callback sleeps to a 24 ms minimum update duration, while the desktop branch skips that wait. The previous host targeted 60 FPS. The new host enforces a minimum 24 ms update interval, without vsync or accumulated catch-up frames. This establishes a timing defect; it does not independently measure the reported 2–3× speed.
+
+Executed on this Windows PC after the change:
+
+- `VerifyTiming`: 100 intervals took 3.160 seconds with Windows timer scheduling; no update interval below the intended 24 ms limit and no catch-up burst after a stall. This is an upper-speed bound check, not proof of exact handheld cadence.
+- Updated bridge booted and rendered 120 frames, then exited normally (6.819 seconds including in-game loading/rendering). This was a rendering smoke check, not a handheld performance benchmark.
+- Bundled JRE-only preparation workflow converted the owner's APK into 390 classes and bridged 15 native methods. All 390 output jar entries and all 132 asset files were byte-identical to the PC build.
+- The newly prepared output passed all 70 `VerifyBridge` checks.
+- ShellCheck passed with only firmware-owned external source resolution excluded (SC1090/SC1091).
+
+The Java preparation workflow was exercised on Windows Java 8. Device Java 17/ARM execution, memory consumption, first-launch firmware messages and normal-speed gameplay still need RG34XX SP testing. The new preparation classpath isolates dex2jar's bundled ASM from the adapter's newer ASM to preserve identical conversion output.
+
 ## Executed on this Windows PC
 
 The supplied Gunslugs 3.2.4 APK was converted with dex2jar 2.4. The preparation tool produced **390 classes** and adapted **15 native methods**. The adapter and tools compiled with OpenJDK 8.

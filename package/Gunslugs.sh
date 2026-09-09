@@ -103,8 +103,6 @@ esac
 if command -v getconf >/dev/null && [[ "$(getconf LONG_BIT 2>/dev/null)" == 32 ]]; then
     fail "A 64-bit kernel with 32-bit userland cannot run this AArch64 package."
 fi
-[[ -f "$GAMEDIR/gamedata/game.jar" ]] || fail "Prepared game data is missing. Run the PC preparation tool on your own APK, then copy its complete output."
-[[ -d "$GAMEDIR/gamedata/assets" ]] || fail "The gamedata/assets folder is missing. Copy the complete prepared package."
 compgen -G "$GAMEDIR/runtime/lib/*.jar" >/dev/null || fail "Java adapter libraries are missing. Copy the complete built package."
 
 prepare_runtime() {
@@ -127,6 +125,18 @@ prepare_runtime "weston_pkg_0.2" "$weston_dir" "westonwrap.sh"
 prepare_runtime "zulu17.54.21-ca-jre17.0.13-linux" "$JAVA_HOME" "bin/java"
 export PATH="$JAVA_HOME/bin:$PATH"
 "$JAVA_HOME/bin/java" -version || fail "The Java runtime cannot run on this firmware."
+
+if [[ ! -f "$GAMEDIR/gamedata/game.jar" ]]; then
+    [[ -f "$GAMEDIR/gunslugs.apk" ]] || fail "Copy your supported Gunslugs 3.2.4 APK to gunslugs/gunslugs.apk, then launch again to prepare it here."
+    printf '%s\n' "Preparing APK on this device. First launch may take several minutes; do not power off."
+    if declare -F pm_message >/dev/null; then
+        pm_message "Preparing Gunslugs APK. This may take several minutes. Please wait."
+    fi
+    "$JAVA_HOME/bin/java" -Xmx128m -XX:+UseSerialGC \
+        -cp "$GAMEDIR/runtime/prepare/*" PrepareDevice \
+        "$GAMEDIR/gunslugs.apk" "$GAMEDIR/gamedata" || fail "APK preparation failed. Keep log.txt for diagnosis."
+fi
+[[ -d "$GAMEDIR/gamedata/assets" ]] || fail "The gamedata/assets folder is missing. Copy the complete prepared package."
 
 export SDL_GAMECONTROLLERCONFIG="${sdl_controllerconfig:-${SDL_GAMECONTROLLERCONFIG:-}}"
 [[ -n "${GPTOKEYB:-}" ]] || fail "The PortMaster controller mapper is unavailable. Update PortMaster."

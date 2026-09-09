@@ -21,6 +21,18 @@ If launch fails, return **`ports/gunslugs/log.txt`** from the card. The log reco
 
 The editable `gunslugs/gunslugs.gptk` maps the device to the game's built-in keyboard controls. A fires/confirms, B jumps, D-pad/left stick moves, Start confirms, and Select goes back/pauses. Select + Start uses PortMaster's exit chord. See the packaged README for the complete mapping. Game options can change the keyboard bindings; resetting them restores the expected defaults.
 
+## Speed fix (bridge 0.2.0)
+
+The original Android render callback (`C.a.f`) runs one game update per frame and sleeps to reach a minimum of 24 ms per update (about 41.7 updates/second). The desktop application type skips that Android sleep; bridge 0.1.0 instead targeted 60 FPS. Bridge 0.2.0 enforces a minimum 24 ms between updates with a monotonic clock, disables vsync to avoid rounding this interval to display refresh multiples, and never replays missed updates after a stall or resume. This corrects the identified timing mismatch; the user's reported 2–3× speed has not been measured on hardware.
+
+To update muOS, merge the new private muOS archive into the SD card root. Preserve `ports/gunslugs/saves`. Existing game data does not need conversion again. A smaller `gunslugs-speed-fix-muos.zip` contains only the updated bridge and installs at the SD card root.
+
+## Prepare game data on the handheld
+
+The new launcher can convert the owner's APK using the existing PortMaster Java runtime; no Python, JDK or PC conversion is needed on the handheld. Install `gunslugs-byo-data-muos.zip` at the SD card root for muOS, or `gunslugs-byo-data.zip` in the ports directory for other supported firmware. Copy the supported APK to `ports/gunslugs/gunslugs.apk` and launch Gunslugs. The first launch verifies the APK fingerprint, converts its code and extracts its assets; later launches reuse the prepared data. Allow several minutes and do not power off during preparation. The APK is retained and can be removed after success.
+
+Only the exact APK fingerprint documented below is accepted. Already prepared data is reused. If preparation is interrupted during final installation, back up and move incomplete `gamedata/game.jar` and `gamedata/assets` before retrying; keep `saves`. The converter uses up to 256 MB of Java heap plus a separate 128 MB preparation process and native overhead. Actual peak RAM and preparation time on the RG34XX SP remain unmeasured. See `gunslugs/log.txt` for progress or failure details.
+
 ## Build from your APK
 
 Requires Python 3.8+, a JDK 8 or newer, and [dex2jar 2.4](https://github.com/pxb1988/dex2jar/releases/tag/v2.4). No compiler or build tools need to be installed on the handheld.

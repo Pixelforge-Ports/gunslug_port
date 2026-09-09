@@ -36,6 +36,7 @@ def package():
     dist = ROOT / 'dist'
     dist.mkdir(exist_ok=True)
     for name, with_data, muos in [('gunslugs-byo-data.zip',False,False),
+                                  ('gunslugs-byo-data-muos.zip',False,True),
                                   ('gunslugs-private-muos.zip',True,True),
                                   ('gunslugs-private-portmaster.zip',True,False)]:
         with zipfile.ZipFile(dist/name, 'w') as out:
@@ -51,6 +52,9 @@ def package():
                 else: target = rel
                 add_zip(out,source,target)
         print('Built',dist/name)
+    with zipfile.ZipFile(dist/'gunslugs-speed-fix-muos.zip','w') as out:
+        add_zip(out,ROOT/'package/gunslugs/runtime/lib/gunslugs-bridge.jar',
+                'ports/gunslugs/runtime/lib/gunslugs-bridge.jar')
     with zipfile.ZipFile(dist/'gunslugs-port-source.zip','w') as out:
         for source in sorted(ROOT.rglob('*')):
             if not source.is_file(): continue
@@ -63,6 +67,9 @@ def package():
             if rel.endswith(('.apk', '.log', '/log.txt', '.pyc')): continue
             add_zip(out,source,'gunslugs-port/'+rel)
     print('Built',dist/'gunslugs-port-source.zip')
+    (dist/'SHA256SUMS.txt').write_text(''.join(
+        hashlib.sha256(path.read_bytes()).hexdigest()+'  '+path.name+'\n'
+        for path in sorted(dist.glob('*.zip'))), encoding='utf-8')
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -85,7 +92,17 @@ def main():
     run([java,'-cp',str(dex/'lib/*'),'com.googlecode.dex2jar.tools.Dex2jarCmd',
          '--force','--output',build/'converted.jar',apk])
     run([javac,'-encoding','UTF-8','-source','8','-target','8','-cp',str(build/'tools/*'),
-         '-d',toolclasses,ROOT/'tools/java/PrepareGame.java'])
+         '-d',toolclasses,ROOT/'tools/java/PrepareGame.java',ROOT/'tools/java/PrepareDevice.java'])
+    preparer=ROOT/'package/gunslugs/runtime/prepare'
+    preparer.mkdir(parents=True,exist_ok=True)
+    (preparer/'dex').mkdir(exist_ok=True)
+    run([jar,'cf',preparer/'gunslugs-prepare.jar','-C',toolclasses,'.'])
+    for dependency in (dex/'lib').glob('*.jar'):
+        shutil.copy2(dependency,preparer/'dex'/dependency.name)
+    for dependency in (build/'tools').glob('asm-*.jar'):
+        shutil.copy2(dependency,preparer/dependency.name)
+    for name in ('LICENSE.txt','NOTICE.txt'):
+        shutil.copy2(dex/name,ROOT/'package/gunslugs/licenses'/('dex2jar-'+name))
     data=ROOT/'package/gunslugs/gamedata'; data.mkdir(parents=True,exist_ok=True)
     run([java,'-cp',os.pathsep.join([str(toolclasses),str(build/'tools/*')]),
          'PrepareGame',build/'converted.jar',data/'game.jar'])

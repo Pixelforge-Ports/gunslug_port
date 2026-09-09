@@ -22,20 +22,22 @@ public final class Main extends ApplicationAdapter {
     private int frames;
     private boolean created;
     private long startNanos;
+    private final FramePacer pacer = new FramePacer(Integer.getInteger("gunslugs.frameMillis", 24));
     private final int smokeFrames = Integer.getInteger("gunslugs.smokeFrames", 0);
     private final Path assets = Paths.get(System.getProperty("gunslugs.assets", "gamedata/assets")).toAbsolutePath();
     private final Path saves = Paths.get(System.getProperty("gunslugs.saves", "saves")).toAbsolutePath();
 
     public static void main(String[] args) {
-        System.out.println("Gunslugs desktop bridge 0.1.0 | " + System.getProperty("os.name") + " " + System.getProperty("os.arch"));
+        System.out.println("Gunslugs desktop bridge 0.2.0 | " + System.getProperty("os.name") + " " + System.getProperty("os.arch"));
+        System.out.println("Game update interval: " + Integer.getInteger("gunslugs.frameMillis", 24) + " ms");
         Lwjgl3ApplicationConfiguration cfg = new Lwjgl3ApplicationConfiguration();
         cfg.setTitle("Gunslugs");
         cfg.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL20, 2, 0);
         cfg.setWindowedMode(Integer.getInteger("gunslugs.width", 720), Integer.getInteger("gunslugs.height", 480));
         cfg.setResizable(false);
-        cfg.setForegroundFPS(60);
+        cfg.setForegroundFPS(0);
         cfg.setIdleFPS(30);
-        cfg.useVsync(true);
+        cfg.useVsync(false);
         cfg.setInitialVisible(!Boolean.getBoolean("gunslugs.hidden"));
         cfg.disableAudio(Boolean.getBoolean("gunslugs.noAudio"));
         if (Boolean.getBoolean("gunslugs.fullscreen")) cfg.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
@@ -68,6 +70,7 @@ public final class Main extends ApplicationAdapter {
     }
 
     @Override public void render() {
+        pacer.awaitFrame();
         invokeGame("f");
         frames++;
         if (smokeFrames > 0 && frames >= smokeFrames) {
@@ -83,7 +86,7 @@ public final class Main extends ApplicationAdapter {
     }
     @Override public void resize(int width, int height) { if (created) invokeGame("d", width, height); }
     @Override public void pause() { if (created) { invokeGame("c"); flush(); } }
-    @Override public void resume() { if (created) invokeGame("b"); }
+    @Override public void resume() { pacer.reset(); if (created) invokeGame("b"); }
     @Override public void dispose() {
         try { if (created) invokeGame("a"); }
         finally { if (services != null) { try { services.dispose(); } catch (Exception e) { throw failure("save cleanup", e); } } }
