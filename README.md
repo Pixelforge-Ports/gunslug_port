@@ -33,16 +33,94 @@ The new launcher can convert the owner's APK using the existing PortMaster Java 
 
 Only the exact APK fingerprint documented below is accepted. Already prepared data is reused. If preparation is interrupted during final installation, back up and move incomplete `gamedata/game.jar` and `gamedata/assets` before retrying; keep `saves`. The converter uses up to 256 MB of Java heap plus a separate 128 MB preparation process and native overhead. Actual peak RAM and preparation time on the RG34XX SP remain unmeasured. See `gunslugs/log.txt` for progress or failure details.
 
-## Build from your APK
+## Build and prepare PortMaster ZIPs from source
 
-Requires Python 3.8+, a JDK 8 or newer, and [dex2jar 2.4](https://github.com/pxb1988/dex2jar/releases/tag/v2.4). No compiler or build tools need to be installed on the handheld.
+### 1. Prepare your build computer
+
+Extract `gunslugs-port-source.zip`, or clone/download this source repository. Open a terminal in the `gunslugs-port` directory containing this README and `tools/build.py`.
+
+You need:
+
+- Python 3.8 or newer. The examples use `python` on Windows and `python3` on Linux.
+- A full JDK 8 or newer containing `bin/java`, `bin/javac` and `bin/jar`. The build has been tested with JDK 8 on Windows; a JRE alone cannot compile the source.
+- The extracted **binary distribution** of [dex2jar 2.4](https://github.com/pxb1988/dex2jar/releases/tag/v2.4), with its `lib` directory, `LICENSE.txt` and `NOTICE.txt` intact.
+- Your own supported Gunslugs APK. Place it outside the source directory, for example beside `gunslugs-port`.
+- An internet connection for the dependency and license downloads. Java and Weston runtime images are installed separately through PortMaster on the handheld.
+
+The supported APK is package `com.orangepixel.gunslugshandy`, version **3.2.4**, version code **52**, with SHA-256:
 
 ```text
-python tools/fetch_dependencies.py
-python tools/build.py --apk "../Gunslugs 3.2.4.apk" --jdk /path/to/jdk --dex-tools /path/to/dex-tools-v2.4
+d2c857b479a4f7a19bc59840e74bfc6350316a46f8ff579c69da281e8a2933e8
 ```
 
-Run those commands from this directory. Dependencies are pinned in `dependencies.lock.json`. The supplied APK is package `com.orangepixel.gunslugshandy`, version code `52`, SHA-256 `d2c857b479a4f7a19bc59840e74bfc6350316a46f8ff579c69da281e8a2933e8`. Other APK versions are rejected because obfuscated method names can change even within the same game version label.
+Other APK fingerprints are rejected because obfuscated method names can change even within the same version label. The current full-build command requires this APK even when the ZIP you intend to share will exclude game data.
+
+### 2. Download dependencies and build
+
+Replace the JDK and dex2jar paths below with the directories you extracted. Pass the JDK directory itself, not its `bin` directory. Keep quotes around paths containing spaces.
+
+**Windows PowerShell**, from the source directory:
+
+```powershell
+python tools/fetch_dependencies.py
+python tools/fetch_licenses.py
+python tools/build.py --apk "../Gunslugs 3.2.4.apk" --jdk "C:/tools/jdk8" --dex-tools "C:/tools/dex-tools-v2.4"
+python tools/verify_package.py
+```
+
+**Linux**, from the source directory:
+
+```bash
+python3 tools/fetch_dependencies.py
+python3 tools/fetch_licenses.py
+python3 tools/build.py --apk "../Gunslugs 3.2.4.apk" --jdk "/path/to/jdk" --dex-tools "/path/to/dex-tools-v2.4"
+python3 tools/verify_package.py
+```
+
+Run each command only after the previous command succeeds. Dependency versions are specified in `tools/fetch_dependencies.py`; it verifies repository checksums and records downloaded SHA-256 values in `dependencies.lock.json`. The license tool supplies the dependency notices and matching source materials for packaging.
+
+The builder compiles the desktop bridge and on-device preparation tools, converts your APK, extracts its assets, and writes the install ZIPs into `dist/`. No ARM cross-compiler is required: the Java code is compiled on your computer, and the downloaded runtime libraries include Linux ARM64 natives. The source archive intentionally omits the generated runtime and game data, so a fresh source checkout must complete the full build before packaging.
+
+`verify_package.py` should print `PACKAGE_VERIFICATION_OK archives=4`. It checks ZIP integrity, launcher layout, executable permissions, required payloads and exclusion of game data from the bring-your-own-data packages. This does not replace testing the port on a handheld.
+
+### 3. Choose the generated ZIP
+
+| File in `dist/` | Purpose | Where to extract |
+| --- | --- | --- |
+| `gunslugs-byo-data.zip` | PortMaster-style package for sharing; includes the bridge and APK preparation tools, excludes game code/assets | The firmware's ports directory |
+| `gunslugs-private-portmaster.zip` | Personal installation with game data prepared from your APK | The firmware's ports directory |
+
+The builder also writes `dist/SHA256SUMS.txt` with checksums for these ZIPs. Keep the private install ZIP, APK and prepared game data private. For a public downloadable PortMaster-style release, use `gunslugs-byo-data.zip`. Generating these files does not submit the port to the PortMaster catalogue.
+
+The standard PortMaster ZIP extracts with this layout (without an extra outer folder):
+
+```text
+Gunslugs.sh
+gunslugs/
+  port.json
+  gameinfo.xml
+  README.txt
+  gunslugs.gptk
+  licenses/
+  runtime/lib/
+  runtime/prepare/
+  gamedata/
+```
+
+Install the PortMaster Java and Weston runtimes described above. With `gunslugs-byo-data.zip`, copy the supported APK into the installed `gunslugs` directory as `gunslugs.apk`, then launch to prepare the missing data. With `gunslugs-private-portmaster.zip`, the data is already prepared.
+
+### 4. Repackage an existing build
+
+After a successful full build, documentation, launcher, metadata or control-map changes can be packaged again without reconverting the APK:
+
+```powershell
+python tools/build.py --package-only
+python tools/verify_package.py
+```
+
+Use `python3` instead on Linux. This recreates the ZIPs and checksums from the existing `package/` contents. **It does not compile Java or prepare missing data.** After changing Java source or preparation tools, rerun the full build command from step 2 before packaging. Always preserve the handheld's `gunslugs/saves/` directory when installing an update.
+
+### How the adaptation works
 
 The builder converts DEX to JVM bytecode, relocates the APK's libGDX JNI wrapper classes, and replaces their native entry points with calls to matching desktop libGDX natives. It retains the game's engine and logic. The bridge maps the original interfaces to desktop graphics, audio, file access, preferences and input. It selects the APK's own empty controller manager, allowing PortMaster's keyboard mapper to provide input without Android controller services.
 
