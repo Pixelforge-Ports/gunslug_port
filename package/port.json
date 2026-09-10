@@ -7,13 +7,13 @@
   ],
   "items_opt": [],
   "attr": {
-    "title": "Gunslugs (experimental APK adaptation)",
+    "title": "Gunslugs",
     "porter": [
       "ronaxdevil"
     ],
-    "desc": "Experimental Java/libGDX adaptation of owner-supplied Gunslugs Android data for compatible AArch64 Linux handhelds. Automatic screen sizing supports 4:3, 3:2, square and widescreen displays. Device validation varies by firmware.",
+    "desc": "Run, jump and shoot through chaotic pixel-art battlefields, smash scenery and rescue characters in this action platformer by Orangepixel.",
     "desc_md": null,
-    "inst": "Place Gunslugs.sh beside gunslugs in your firmware's ports folder. On muOS put gunslugs in /ports and the launcher in /roms/PORTS. Copy your supported APK to gunslugs/gunslugs.apk for first-launch preparation, or use your privately prepared data. Requires 64-bit ARM Linux, compatible graphics, PortMaster, Westonpack and Java 17. Screen size is detected automatically; resolution.txt can override it. No original game content is distributed.",
+    "inst": "Install through PortMaster. Buy and install Gunslugs 3.2.4 from the Epic Games Store mobile app on Android. Back it up with AnExplorer (Apps, long-press Gunslugs, Backup), then copy the APK from Internal Storage/Backup/Apps into ports/gunslugs. Launch Gunslugs; extracted.sh builds GAME.JAR and extracts assets on the handheld. Requires the supported versionCode 52 APK, AArch64 firmware, Java 17, Westonpack and current PortMaster with gptokeyb2.",
     "inst_md": null,
     "genres": [
       "action",
@@ -21,10 +21,10 @@
     ],
     "image": null,
     "rtr": false,
-    "exp": true,
+    "exp": false,
     "runtime": [
-      "weston_pkg_0.2.squashfs",
-      "zulu17.54.21-ca-jre17.0.13-linux.squashfs"
+      "weston_pkg_0.2",
+      "zulu17.54.21-ca-jre17.0.13-linux"
     ],
     "reqs": [],
     "arch": [
@@ -32,6 +32,12 @@
     ],
     "min_glibc": "2.27",
     "availability": "paid",
-    "store": []
+    "store": [
+      {
+        "name": "Epic Games Store (Android)",
+        "gameurl": "https://store.epicgames.com/p/gunslugs-2b6459",
+        "developerurl": "https://orangepixel.net/"
+      }
+    ]
   }
 }

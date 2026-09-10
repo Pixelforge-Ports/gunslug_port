@@ -30,7 +30,7 @@ public final class Main extends ApplicationAdapter {
     private final Path saves = Paths.get(System.getProperty("gunslugs.saves", "saves")).toAbsolutePath();
 
     public static void main(String[] args) {
-        System.out.println("Gunslugs desktop bridge 0.3.0 | " + System.getProperty("os.name") + " " + System.getProperty("os.arch"));
+        System.out.println("Gunslugs desktop bridge 0.4.0 | " + System.getProperty("os.name") + " " + System.getProperty("os.arch"));
         System.out.println("Game update interval: " + Integer.getInteger("gunslugs.frameMillis", 24) + " ms");
         Lwjgl3ApplicationConfiguration cfg = new Lwjgl3ApplicationConfiguration();
         cfg.setTitle("Gunslugs");

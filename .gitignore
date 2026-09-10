@@ -12,3 +12,7 @@ __pycache__/
 
 # Generated public PortMaster export
 /ports/
+
+package/gunslugs/gamedata/GAME.JAR
+package/gunslugs/gamedata/.prepare-*
+package/gunslugs/gamedata/.previous-*

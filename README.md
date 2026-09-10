@@ -1,168 +1,49 @@
-# Gunslugs for PortMaster
+## Notes
 
-An experimental **Gunslugs 3.2.4** port for **ARM64 Linux handhelds running compatible PortMaster firmware**, with automatic display sizing. This uses the supplied Android APK's Java game code through a desktop libGDX bridge. It is not an Android emulator.
+Thanks to [Orangepixel](https://orangepixel.net/) for creating Gunslugs, a pixel-art action game with chaotic shootouts and destructible scenery.
 
-**Current evidence:** the user reports boot and gameplay on RG34XX SP/muOS. Desktop checks cover the Java bridge and scripted movement, jump and fire. The new display handling still needs physical-device verification; other models are compatibility targets, not certified devices. 32-bit firmware is unsupported.
+This is a universal BYO-data PortMaster package for compatible **64-bit ARM Linux handhelds**. Install `gunslugs.zip` through PortMaster's `autoinstall` folder. PortMaster installs the same ZIP using your firmware's folder layout and provides the Java 17 and Westonpack runtimes. Keep PortMaster updated for gptokeyb2 support.
 
-## Handhelds and screen resolutions (bridge 0.3.0)
+## Get the APK
 
-The launcher uses PortMaster's detected screen dimensions and controller mapping, without a device-model allowlist. It searches common PortMaster/data locations used by muOS, ArkOS/dArkOS, AmberELEC, ROCKNIX, KNULLI and TrimUI firmware. Each firmware must provide working PortMaster, Java 17 and Westonpack support; installing this ZIP cannot supply missing GPU drivers or firmware runtime support.
+On your Android device, buy and install **Gunslugs** from the [Epic Games Store mobile app](https://store.epicgames.com/mobile/android). This port requires **Gunslugs 3.2.4**. Check the installed version before backing it up. [Gunslugs store page](https://store.epicgames.com/p/gunslugs-2b6459).
 
-| Resolution | Aspect ratio | Example display targets |
-| --- | --- | --- |
-| 640×480 | 4:3 | RG35XX family with compatible 64-bit firmware, RG35XX+, RG35XX H, RG40XX, R36S |
-| 720×480 | 3:2 | RG34XX SP, RG34XX |
-| 720×720 | 1:1 | RG CubeXX, other square-screen handhelds |
-| 1024×768 | 4:3 | TrimUI Brick |
-| 1280×720 | 16:9 | TrimUI Smart Pro |
+Back up the installed APK with [AnExplorer](https://anexplorer.io/solve/backup-apps-apk):
 
-These are not fixed resolution presets: other reported sizes also use the same resize path. The bridge fits a minimum 3:2 game view into the screen without stretching or cropping. Square and 4:3 displays have black bars above and below; wider displays gain a wider game view. This preserves tutorial text and HUD content that clipped when the original game rendered directly into a square view. Rendering uses a 480-pixel-high logical view and scales the final output to the display, leaving the game's offscreen textures unchanged. It prevents the APK's old desktop resolution/fullscreen settings from replacing the handheld mode. The 24 ms speed limiter remains independent of resolution and refresh rate.
+1. Open **AnExplorer**.
+2. On the Home screen, tap **Apps**. This shows all installed applications on your device.
+3. Find **Gunslugs** by scrolling the list or using the search bar.
+4. Long-press the app icon or name.
+5. Tap **Backup** from the context menu.
+6. AnExplorer saves the APK to **`Internal Storage/Backup/Apps/[AppName].apk`**.
+7. A confirmation appears showing the file was saved successfully.
 
-**Hardware requirements:** AArch64/ARM64 kernel and 64-bit userland, the bundled native libraries' minimum glibc 2.27, working graphics through Westonpack's GLX/GL4ES route, and enough memory for Java and the game. The Java runtime can impose additional requirements. Original 32-bit-only RG35XX hardware/firmware and other ARMv7-only systems are not supported; resolution support alone does not add CPU/GPU compatibility. See the upstream [Westonpack platform matrix](https://github.com/binarycounter/Westonpack/wiki) and [LibGDX runtime requirements](https://github.com/binarycounter/Westonpack/wiki/LibGDX-Example).
+## First launch
 
-Usually no display configuration is needed. If firmware reports the wrong size, create `gunslugs/resolution.txt` containing one line such as `720x720`, `640x480`, or `1280x720`, then restart. Use `auto` or remove the file to restore detection. Values must be between 160 and 8192 pixels per dimension; this validates input, not a guarantee that a device can render every size. Keep the display in its firmware-provided orientation. The log records the requested size and actual `GAME_RESIZE_OK` size.
+Copy the backed-up APK into the installed **`ports/gunslugs/`** folder and launch **Gunslugs** from Ports. You may keep its filename, or rename it to `gunslugs.apk`. If several APKs are present, name the intended one `gunslugs.apk`.
 
-Advanced launcher overrides: `GUNSLUGS_RESOLUTION=WIDTHxHEIGHT` takes priority over the file; `GUNSLUGS_PORTMASTER` and `GUNSLUGS_DATA_DIR` can point to unusual install locations. If PortMaster supplies no valid dimensions, Weston chooses its display mode. On a desktop test run, `-Dgunslugs.width=640 -Dgunslugs.height=480` selects the window size; `-Dgunslugs.lockDisplay=false` restores the APK's desktop mode-switching behavior.
+The included **`extracted.sh`** automatically converts the APK into **`gamedata/GAME.JAR`** and extracts the assets on the handheld. Allow several minutes and do not power off during preparation. Later launches reuse the prepared files. The original APK is retained and may be removed after a successful launch. Existing working data from earlier port versions is also reused.
 
-## Install on your RG34XX SP
+The adapter supports version code **52**, with APK SHA-256 `d2c857b479a4f7a19bc59840e74bfc6350316a46f8ff579c69da281e8a2933e8`. The importer checks this fingerprint before conversion; another build labeled 3.2.4 can have incompatible code. If import fails, keep **`gunslugs/log.txt`** for diagnosis and retry after correcting the APK. Incomplete data from an interrupted import is backed up automatically before replacement. Saves remain in **`gunslugs/saves/`**; preserve that folder when updating.
 
-1. Update PortMaster in muOS. In its Runtime Manager, install **Westonpack** (`weston_pkg_0.2.squashfs`) and **Zulu Java 17** (`zulu17.54.21-ca-jre17.0.13-linux.squashfs`). The launcher can also request these downloads if the device is online.
-2. Extract `dist/gunslugs-private-muos.zip` at the **root of the SD card containing your ports**. Merge its `ports` and `roms` directories with the existing directories.
-3. The resulting locations must be `ports/gunslugs/` and `roms/PORTS/Gunslugs.sh` on that same card.
-4. Open **Explore Content → Ports → Gunslugs**.
-
-The private archive already contains data prepared from your supplied APK. Keep that archive private. `dist/gunslugs-byo-data.zip` excludes the game code and assets; another owner must prepare their own compatible APK.
-
-For firmware using a single ports directory, extract `dist/gunslugs-private-portmaster.zip` there, keeping `Gunslugs.sh` beside the `gunslugs` directory. The Java and Weston runtimes still come from PortMaster.
-
-If launch fails, return **`ports/gunslugs/log.txt`** from the card. The log records the runtime, firmware and Java exception. Progress and settings are stored in **`ports/gunslugs/saves/`**; preserve that directory when updating.
+Screen size is detected automatically. To override incorrect firmware detection, put one line such as `640x480`, `720x480`, `720x720`, or `1280x720` in **`gunslugs/resolution.txt`**. Use `auto` to restore detection. The port preserves the game view without stretching or cropping; square and 4:3 screens show borders. Universal packaging does not add support for 32-bit firmware.
 
 ## Controls
 
-The editable `gunslugs/gunslugs.gptk` maps the device to the game's built-in keyboard controls. A fires/confirms, B jumps, D-pad/left stick moves, Start confirms, and Select goes back/pauses. Select + Start uses PortMaster's exit chord. See the packaged README for the complete mapping. Game options can change the keyboard bindings; resetting them restores the expected defaults.
+Bindings are editable in **`gunslugs/gunslugs.ini`**.
 
-## Speed fix (bridge 0.2.0)
+| Button | Action |
+|--|--|
+| D-pad / left stick | Move; Up also jumps |
+| A | Fire / confirm |
+| B | Jump |
+| X | Weapon swap |
+| Y | Special ability |
+| L1 / L2 | Weapon swap |
+| R1 | Options |
+| R2 | Fire |
+| Start | Confirm |
+| Select | Back / pause |
+| Select + Start | Exit through PortMaster |
 
-The original Android render callback (`C.a.f`) runs one game update per frame and sleeps to reach a minimum of 24 ms per update (about 41.7 updates/second). The desktop application type skips that Android sleep; bridge 0.1.0 instead targeted 60 FPS. Bridge 0.2.0 enforces a minimum 24 ms between updates with a monotonic clock, disables vsync to avoid rounding this interval to display refresh multiples, and never replays missed updates after a stall or resume. This corrects the identified timing mismatch; the user's reported 2–3× speed has not been measured on hardware.
-
-To update muOS, merge the new private muOS archive into the SD card root. Preserve `ports/gunslugs/saves`. Existing game data does not need conversion again. A smaller `gunslugs-speed-fix-muos.zip` contains only the updated bridge and installs at the SD card root.
-
-## Prepare game data on the handheld
-
-The new launcher can convert the owner's APK using the existing PortMaster Java runtime; no Python, JDK or PC conversion is needed on the handheld. Install `gunslugs-byo-data-muos.zip` at the SD card root for muOS, or `gunslugs-byo-data.zip` in the ports directory for other supported firmware. Copy the supported APK to `ports/gunslugs/gunslugs.apk` and launch Gunslugs. The first launch verifies the APK fingerprint, converts its code and extracts its assets; later launches reuse the prepared data. Allow several minutes and do not power off during preparation. The APK is retained and can be removed after success.
-
-Only the exact APK fingerprint documented below is accepted. Already prepared data is reused. If preparation is interrupted during final installation, back up and move incomplete `gamedata/game.jar` and `gamedata/assets` before retrying; keep `saves`. The converter uses up to 256 MB of Java heap plus a separate 128 MB preparation process and native overhead. Actual peak RAM and preparation time on the RG34XX SP remain unmeasured. See `gunslugs/log.txt` for progress or failure details.
-
-## Build and prepare PortMaster ZIPs from source
-
-### 1. Prepare your build computer
-
-Extract `gunslugs-port-source.zip`, or clone/download this source repository. Open a terminal in the `gunslugs-port` directory containing this README and `tools/build.py`.
-
-You need:
-
-- Python 3.8 or newer. The examples use `python` on Windows and `python3` on Linux.
-- A full JDK 8 or newer containing `bin/java`, `bin/javac` and `bin/jar`. The build has been tested with JDK 8 on Windows; a JRE alone cannot compile the source.
-- The extracted **binary distribution** of [dex2jar 2.4](https://github.com/pxb1988/dex2jar/releases/tag/v2.4), with its `lib` directory, `LICENSE.txt` and `NOTICE.txt` intact.
-- Your own supported Gunslugs APK. Place it outside the source directory, for example beside `gunslugs-port`.
-- An internet connection for the dependency and license downloads. Java and Weston runtime images are installed separately through PortMaster on the handheld.
-
-The supported APK is package `com.orangepixel.gunslugshandy`, version **3.2.4**, version code **52**, with SHA-256:
-
-```text
-d2c857b479a4f7a19bc59840e74bfc6350316a46f8ff579c69da281e8a2933e8
-```
-
-Other APK fingerprints are rejected because obfuscated method names can change even within the same version label. The current full-build command requires this APK even when the ZIP you intend to share will exclude game data.
-
-### 2. Download dependencies and build
-
-Replace the JDK and dex2jar paths below with the directories you extracted. Pass the JDK directory itself, not its `bin` directory. Keep quotes around paths containing spaces.
-
-**Windows PowerShell**, from the source directory:
-
-```powershell
-python tools/fetch_dependencies.py
-python tools/fetch_licenses.py
-python tools/build.py --apk "/path/to/Gunslugs 3.2.4.apk" --jdk "C:/tools/jdk8" --dex-tools "C:/tools/dex-tools-v2.4"
-python tools/verify_package.py
-```
-
-**Linux**, from the source directory:
-
-```bash
-python3 tools/fetch_dependencies.py
-python3 tools/fetch_licenses.py
-python3 tools/build.py --apk "/path/to/Gunslugs 3.2.4.apk" --jdk "/path/to/jdk" --dex-tools "/path/to/dex-tools-v2.4"
-python3 tools/verify_package.py
-```
-
-Run each command only after the previous command succeeds. Dependency versions are specified in `tools/fetch_dependencies.py`; it verifies repository checksums and records downloaded SHA-256 values in `dependencies.lock.json`. The license tool supplies the dependency notices and matching source materials for packaging.
-
-The builder compiles the desktop bridge and on-device preparation tools, converts your APK, extracts its assets, and writes the install ZIPs into `dist/`. No ARM cross-compiler is required: the Java code is compiled on your computer, and the downloaded runtime libraries include Linux ARM64 natives. The source archive intentionally omits the generated runtime and game data, so a fresh source checkout must complete the full build before packaging.
-
-`verify_package.py` should print `PACKAGE_VERIFICATION_OK archives=4`. It checks ZIP integrity, launcher layout, executable permissions, required payloads and exclusion of game data from the bring-your-own-data packages. This does not replace testing the port on a handheld.
-
-For display development, `bash tests/verify_display.sh` checks resolution selection and invalid settings. On the Windows build host, `python tools/verify_resolutions.py --jdk "C:/tools/jdk8"` runs the real game at all five listed sizes and saves logs and screenshots under `build/resolutions/`. It requires working desktop graphics and prepared game data. A Linux desktop needs matching native libraries for that desktop architecture; the install package ships ARM64 natives.
-
-### 3. Choose the generated ZIP
-
-| File in `dist/` | Purpose | Where to extract |
-| --- | --- | --- |
-| `gunslugs-byo-data.zip` | PortMaster-style package for sharing; includes the bridge and APK preparation tools, excludes game code/assets | The firmware's ports directory |
-| `gunslugs-private-portmaster.zip` | Personal installation with game data prepared from your APK | The firmware's ports directory |
-
-The builder also writes `dist/SHA256SUMS.txt` with checksums for these ZIPs. Keep the private install ZIP, APK and prepared game data private. For a public downloadable PortMaster-style release, use `gunslugs-byo-data.zip`. Generating these files does not submit the port to the PortMaster catalogue.
-
-The standard PortMaster ZIP extracts with this layout (without an extra outer folder):
-
-```text
-Gunslugs.sh
-gunslugs/
-  port.json
-  gameinfo.xml
-  README.txt
-  gunslugs.gptk
-  licenses/
-  runtime/lib/
-  runtime/prepare/
-  gamedata/
-```
-
-Install the PortMaster Java and Weston runtimes described above. With `gunslugs-byo-data.zip`, copy the supported APK into the installed `gunslugs` directory as `gunslugs.apk`, then launch to prepare the missing data. With `gunslugs-private-portmaster.zip`, the data is already prepared.
-
-### 4. Repackage an existing build
-
-After a successful full build, documentation, launcher, metadata or control-map changes can be packaged again without reconverting the APK:
-
-```powershell
-python tools/build.py --package-only
-python tools/verify_package.py
-```
-
-Use `python3` instead on Linux. This recreates the ZIPs and checksums from the existing `package/` contents. **It does not compile Java or prepare missing data.** After changing Java source or preparation tools, rerun the full build command from step 2 before packaging. Always preserve the handheld's `gunslugs/saves/` directory when installing an update.
-
-### How the adaptation works
-
-The builder converts DEX to JVM bytecode, relocates the APK's libGDX JNI wrapper classes, and replaces their native entry points with calls to matching desktop libGDX natives. It retains the game's engine and logic. The bridge maps the original interfaces to desktop graphics, audio, file access, preferences and input. It selects the APK's own empty controller manager, allowing PortMaster's keyboard mapper to provide input without Android controller services.
-
-No game code, assets, Android libraries or APK are downloaded by the tools. Decompiled game code is not part of the distributable source package.
-
-## Validation and references
-
-See [VALIDATION.md](VALIDATION.md) for actual checks and remaining device checks, and [runtime-reference.md](docs/runtime-reference.md) for runtime sources and implementation details.
-
-This follows [Westonpack's LibGDX example](https://github.com/binarycounter/Westonpack/wiki/LibGDX-Example) and [muOS's PortMaster layout](https://muos.dev/installation/portmaster).
-
-Adapter code is MIT licensed. Game content remains the property of OrangePixel. Dependency licenses and source information are in `package/gunslugs/licenses/`.
-
-## PortMaster repository packaging
-
-The build now exports `ports/gunslugs/` using PortMaster's repository layout, including `port.json`, `README.md`, `gameinfo.xml`, a 640x480 gameplay screenshot, the launcher and `gunslugs/` payload. This generated directory contains only the public BYO payload. `package/` remains private build staging and can contain owner game files; never copy it into a PortMaster submission.
-
-After building the host, run `python tools/build.py --package-only`. It also creates:
-
-- `dist/gunslugs.zip`: the public install ZIP, with catalogue metadata inside the game folder.
-- `dist/gunslugs-portmaster-submission.zip`: the public `ports/gunslugs/` tree for local review or later use.
-
-The existing BYO, private and source ZIPs remain available. The source ZIP contains build inputs and the exporter; rebuilding regenerates the public tree. The layout ZIP contains no owner game data. Nothing is uploaded by the build. See [PortMaster packaging instructions](docs/portmaster-packaging.md) and [validation](VALIDATION.md).
+If firmware swaps the physical labels, edit the INI to match. Reset the game's keyboard settings if you changed its default bindings.

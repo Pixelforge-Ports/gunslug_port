@@ -2,10 +2,12 @@
 <gameList>
   <game>
     <path>./Gunslugs.sh</path>
-    <name>Gunslugs (experimental APK adaptation)</name>
-    <desc>Experimental Java/libGDX adaptation of owner-supplied Gunslugs Android data for compatible AArch64 Linux handhelds. Automatic screen sizing supports 4:3, 3:2, square and widescreen displays. Device validation varies by firmware.</desc>
+    <name>Gunslugs</name>
+    <desc>Fight the Black Duck Army across destructible battlefields, rescue new characters and take on bosses in this pixel-art action platformer.</desc>
+    <releasedate>20130116T000000</releasedate>
     <developer>Orangepixel</developer>
-    <genre>action, platformer</genre>
+    <publisher>Orangepixel</publisher>
+    <genre>Action</genre>
     <image>./gunslugs/screenshot.png</image>
   </game>
 </gameList>

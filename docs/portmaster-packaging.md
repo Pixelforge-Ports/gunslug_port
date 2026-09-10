@@ -1,39 +1,22 @@
-# PortMaster packaging
+# Maintainer build
 
-The generated `ports/gunslugs/` is the public repository export. It includes the host and redistributable dependencies, excludes owner game data and saves, and uses flat license storage. Component source directories are preserved in a source archive in `licenses/`. The metadata credits ronaxdevil and the game developer; `availability` is `paid`, `rtr` is false, and `exp` is true.
+Source base: https://github.com/ronaxdevil/gunslug_port at commit `78df189948136109a8cd611563246c8f09ed73b1`.
 
-Java and Weston runtime names match the official registry. ARM64 remains explicit because these hosts require ARM64 native libraries; Java alone does not make this payload architecture independent. The gameplay screenshot came from the earlier desktop test and preserves the actual 4:3 display borders.
+The release builder compiles the Java adapter and on-device importer without an APK. It produces exactly **`dist/gunslugs.zip`**, plus a checksum text file and an unpacked `ports/gunslugs/` tree. It has no private, firmware-specific, patch, submission or source ZIP target.
 
-## Build and check
-
-Build the host as explained in the source README, then run:
+Maintainers need Python 3.8+, a JDK 8+ and [dex2jar 2.4](https://github.com/pxb1988/dex2jar/releases/tag/v2.4). From the source checkout:
 
 ```sh
-python tools/build.py --package-only
-python tools/verify_package.py
+python tools/fetch_dependencies.py
+python tools/fetch_licenses.py
+python tools/build.py --jdk /path/to/jdk --dex-tools /path/to/dex-tools-v2.4
 python tools/verify_portmaster.py
-bash tests/verify_display.sh
 ```
 
-Do not place proprietary game files in the generated public tree. Regenerate exports after changing launcher, metadata, licenses or screenshots in `package/`. Keep compiled build output and private packages out of your source repository.
+These commands compile the redistributable port only. The user installs the ZIP and supplies the APK on the handheld; `extracted.sh` performs all game-data preparation there.
 
-## Local output only
+The provided PortMaster reference is treated as packaging guidance. Applicable changes include the standard header, gptokeyb2 INI, metadata runtime catalog keys, paid BYO status, a testing-thread draft, and the existing genuine 640x480 screenshot. No hardware-testing or human-authorship attestation is marked complete. The reference's optional cover is not fabricated. The newer upstream timing, display and GL4ES path are preserved rather than replacing a working game-specific graphics integration during packaging.
 
-No upload, fork, commit or pull request is performed. The public install ZIP goes into the firmware's ports folder. The `-portmaster-submission.zip` is a local archive of the repository layout; its name does not imply it was submitted anywhere. The ordinary source ZIP is for the adaptation source repository. Private ZIPs contain owner game data and remain for personal use.
+`package/` is the source layout. Top-level README, metadata and screenshot are stored with the game by the install ZIP; `items` contains only the launcher and data directory. License texts stay flat. Third-party source archives and JSON lock files remain in the source checkout and are excluded from the install ZIP. The installed user guide is only `gunslugs.md`.
 
-The upstream checker is `python3 tools/build_release.py --do-check` in a prepared PortMaster-New checkout. The local export checker covers the file layout without downloading that repository. These packages remain experimental until physical device testing is completed.
-
-## Device validation still required
-
-| Firmware | Physical test status |
-|---|---|
-| Rocknix | Not tested |
-| muOS | Not tested in this packaging pass |
-| dArkOS | Not tested |
-| Knulli | Not tested |
-| AmberELEC | Not tested |
-| ArkOS | Not tested |
-
-Test H700, RK3326, RK3566 and other intended CPUs with their actual graphics drivers. Cover launch, controls, audio, save/restart, exit cleanup and sleep/resume. Prior desktop resolution results are recorded separately in VALIDATION.md.
-
-References: [packaging guide](https://portmaster.games/packaging.html), [PortMaster-New](https://github.com/PortsMaster/PortMaster-New), [sparse checkout guide](https://gist.github.com/JeodC/7a51211ad94ad6084d14042d80a62549).
+Original game data, APKs, saves, logs, staging directories and host-only test dependencies are excluded. Old releases elsewhere in the workspace are not altered. No remote push or PortMaster submission is part of this build.

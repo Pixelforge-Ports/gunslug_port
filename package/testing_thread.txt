@@ -1,0 +1,42 @@
+Instructions to install the testing ZIP:
+Put gunslugs.zip in PortMaster/autoinstall and run PortMaster.
+
+Game: Gunslugs
+Source: https://github.com/ronaxdevil/gunslug_port
+
+Buy and install Gunslugs 3.2.4 from the Epic Games Store mobile app on Android.
+Use AnExplorer > Apps > long-press Gunslugs > Backup. Copy the resulting APK
+from Internal Storage/Backup/Apps into ports/gunslugs, then launch the port.
+extracted.sh builds GAME.JAR and extracts assets on the handheld.
+
+Controls:
+D-pad / left stick: move
+A: fire / confirm
+B: jump
+X / L1 / L2: weapon swap
+Y: special ability
+R1: options
+R2: fire
+Start: confirm
+Select: back / pause
+Select + Start: exit
+
+CFW tests:
+[ ] AmberELEC
+[ ] ArkOS / dArkOS
+[ ] muOS
+ROCKNIX:
+  [ ] Libmali
+  [ ] Panfrost
+  [ ] Adreno (optional)
+[ ] Knulli
+
+Resolutions:
+[ ] 480x320 (optional)
+[ ] 640x480
+[ ] 720x480
+[ ] 720x720
+[ ] 1280x720
+
+Check first-launch APK import, retry after interrupted preparation, input and
+release, audio, save/restart, exit cleanup and sleep/resume. Attach log.txt.

@@ -7,8 +7,8 @@ The open-source licenses below do not grant rights to redistribute that game.
 Runtime dependencies are distributed as separate, unmodified upstream JARs.
 Exact binary download URLs and SHA-256 hashes are in dependencies.lock.json
 in the source project. License/source download URLs and SHA-256 hashes are
-in this directory's sources.lock.json. Full notices are retained here and,
-where applicable, in the corresponding source archives.
+in the source project's package/gunslugs/licenses/sources.lock.json.
+Upstream source links are listed below; license texts are retained here.
 
 LIBGDX 1.13.1
   Components: gdx, gdx-backend-lwjgl3, gdx-platform natives-desktop.
@@ -34,9 +34,9 @@ LWJGL 3.3.3
   libffi (LWJGL core native support): MIT-style; see LIBFFI-LICENSE.txt.
   Khronos API definitions: MIT-style; see KHRONOS-LICENSE.txt.
   STB: MIT or public-domain alternative; see STB-LICENSE.txt and original
-  per-file notices in sources/lwjgl-stb/. These are the exact STB source
+  per-file notices in the source project under sources/lwjgl-stb/. These are the exact STB source
   files from LWJGL 3.3.3, including stb_vorbis.c and stb_truetype.h.
-  Additional binding sources: sources/lwjgl-stb-3.3.3-sources.jar.
+  Additional binding sources in the source project: sources/lwjgl-stb-3.3.3-sources.jar.
 
 OPENAL SOFT 1.23.1
   Native audio backend distributed in lwjgl-openal-3.3.3-natives-linux-arm64.jar.
@@ -44,11 +44,11 @@ OPENAL SOFT 1.23.1
   License: GNU Library General Public License version 2 or later, with
   component-specific licenses retained in the source tree.
   Files: OPENAL-SOFT-LICENSE.txt, OPENAL-SOFT-COPYING.txt, LGPL-2.1.txt.
-  Complete upstream 1.23.1 source tree, including CMake build files:
+  Complete upstream 1.23.1 source tree in the source project:
     sources/openal-soft-1.23.1.tar.gz
   Upstream source: https://github.com/kcat/openal-soft/tree/1.23.1
   Archive: https://codeload.github.com/kcat/openal-soft/tar.gz/refs/tags/1.23.1
-  Java binding sources: sources/lwjgl-openal-3.3.3-sources.jar (LWJGL license).
+  Java binding sources in the source project: sources/lwjgl-openal-3.3.3-sources.jar (LWJGL license).
   LWJGL build provenance: https://github.com/LWJGL/lwjgl3/tree/3.3.3
 
 JORBIS / JOGG 0.0.17
@@ -56,8 +56,8 @@ JORBIS / JOGG 0.0.17
   License: GNU Library General Public License version 2 or later.
   Files: JORBIS-NOTICES.txt, OPENAL-SOFT-LICENSE.txt (full Library GPL v2),
   LGPL-2.1.txt, GPL-2.0.txt.
-  Corresponding sources: sources/jorbis-0.0.17-sources.jar.
-  Build/project metadata: sources/jorbis-0.0.17.pom.
+  Corresponding sources in the source project: sources/jorbis-0.0.17-sources.jar.
+  Build/project metadata in the source project: sources/jorbis-0.0.17.pom.
   Source archive:
   https://repo.maven.apache.org/maven2/org/jcraft/jorbis/0.0.17/jorbis-0.0.17-sources.jar
   Project: http://www.jcraft.com/jorbis/
@@ -69,19 +69,18 @@ JLAYER 1.0.1-GDX
   metadata identifies LGPL 2.1. Both complete license texts are included.
   Files: JLAYER-NOTICES.txt, OPENAL-SOFT-LICENSE.txt (Library GPL v2),
   LGPL-2.1.txt, GPL-2.0.txt.
-  Corresponding sources and decoder resource sfd.ser:
+  Corresponding sources and decoder resource sfd.ser in the source project:
     sources/jlayer-1.0.1-gdx-sources.jar
-  Build/project metadata: sources/jlayer-1.0.1-gdx.pom.
+  Build/project metadata in the source project: sources/jlayer-1.0.1-gdx.pom.
   Source archive:
   https://repo.maven.apache.org/maven2/com/badlogicgames/jlayer/jlayer/1.0.1-gdx/jlayer-1.0.1-gdx-sources.jar
   Project: https://github.com/libgdx/jlayer-gdx
 
 MODIFICATION AND REPLACEMENT OF LGPL COMPONENTS
 
-The corresponding upstream sources for the LGPL audio components accompany
-this package; no separate source request is required. Keep these sources and
-notices with redistributed copies. They are ordinary JAR, gzip, and tar files.
-They can be opened with standard archive tools.
+The corresponding upstream sources for the LGPL audio components are linked
+above and retained in the source project. The install ZIP includes license
+texts; it excludes source archives and JSON lock files.
 
 JOrbis and JLayer source JARs contain ordinary Java sources. Compile the
 sources with a Java compiler, preserve non-Java resources such as sfd.ser,
@@ -104,5 +103,5 @@ EXTERNAL RUNTIMES
 
 Java and Weston are supplied separately by PortMaster/firmware runtime
 downloads and are not included in this package; retain their own notices
-when obtaining or redistributing them. Build tools such as the JDK, dex2jar,
-and ASM are not included in the handheld runtime package.
+when obtaining or redistributing them. The JDK is not bundled. dex2jar and
+ASM are bundled for on-device APK preparation, with their upstream notices.

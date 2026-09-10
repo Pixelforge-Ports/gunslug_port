@@ -1,4 +1,44 @@
-# Validation — 9 September 2026
+# Validation - 10 September 2026
+
+## Package 0.4.0: one universal BYO archive
+
+Follow-up packaging and exit fix: the installed guide is only `gunslugs.md`;
+duplicate README.txt files, requested testing-thread prose, license-folder
+source archives and JSON locks are excluded. `tests/verify_exit.py` passed:
+game status 0 and SIGTERM status 143 exit successfully; statuses 1 and 139
+still report errors. The launcher's TERM trap also exits through cleanup with
+success. ShellCheck and the rebuilt ZIP/export checks passed. Physical
+Select + Start behavior still needs confirmation on the handheld.
+
+Updated from upstream commit `78df189948136109a8cd611563246c8f09ed73b1`.
+The existing 0.3.0 display and timing implementation is retained. The launcher
+uses the standard PortMaster header, gptokeyb2 and separate runtime/extraction
+helpers. Earlier launcher descriptions below are historical.
+
+Executed on the Windows host with Java 8 and the supplied supported APK:
+
+- Built the bridge and preparer from source. The release contains only
+  `gunslugs.zip`, with no APK, GAME.JAR, extracted assets or saves.
+- Ran the packaged `extracted.sh`: missing, invalid and ambiguous APKs were
+  rejected; an automatically discovered APK converted successfully. All 132
+  extracted asset files matched the original APK byte for byte.
+- Removed the fixture APK and confirmed prepared output was reused without
+  modifying GAME.JAR. Corrupted the fixture JAR and reran extraction: output
+  recovered identically, incomplete output was backed up, and a save sentinel
+  was preserved throughout. No temporary preparation directory remained.
+- `VerifyBridge`: all 70 checks passed against the newly imported GAME.JAR,
+  covering 15 native methods and 62 GL methods. Java's path resolution required
+  running this local check outside the Windows sandbox.
+- `VerifyDisplay` and `tests/verify_display.sh` passed. `VerifyTiming` passed
+  100 intervals in 3.116 seconds with no catch-up burst.
+- ShellCheck passed for the launcher and all active shell helpers. Package
+  verification checked metadata, mappings, line endings, executable modes,
+  archive privacy, source export consistency and SHA-256.
+
+These checks do not establish ARM64/Java 17 execution, first-launch memory use,
+firmware runtime mounting, gptokeyb2 input or graphics on a handheld. New physical
+testing is pending; no new graphical gameplay test was run for 0.4.0. The 0.3.0
+desktop gameplay results below describe the unchanged game engine.
 
 ## Bridge 0.3.0: multiple displays and generic ARM64 launcher
 

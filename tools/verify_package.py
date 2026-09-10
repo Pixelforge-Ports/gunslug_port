@@ -1,46 +1,53 @@
-"""Check install archive layout, JVM payloads and exclusion of private game data."""
+"""Check the only release archive, metadata, helpers and absence of game data."""
 from pathlib import Path
+import configparser
 import io
 import json
+import struct
 import zipfile
+import xml.etree.ElementTree as ET
 
 ROOT=Path(__file__).resolve().parents[1]
 
 def verify():
-    count=0
-    for filename,muos,private in [('gunslugs-private-muos.zip',True,True),
-                                   ('gunslugs-private-portmaster.zip',False,True),
-                                   ('gunslugs-byo-data.zip',False,False),
-                                   ('gunslugs-byo-data-muos.zip',True,False)]:
-        with zipfile.ZipFile(ROOT/'dist'/filename) as z:
-            assert z.testzip() is None, filename+' contains corrupt data'
-            names=z.namelist(); prefix='ports/' if muos else ''
-            script='roms/PORTS/Gunslugs.sh' if muos else 'Gunslugs.sh'
-            assert script in names
-            assert b'\r' not in z.read(script), 'Launcher must have LF line endings'
-            assert z.getinfo(script).external_attr>>16 & 0o111, 'Launcher execute bit missing'
-            assert prefix+'gunslugs/runtime/lib/gunslugs-bridge.jar' in names
-            assert prefix+'gunslugs/runtime/prepare/gunslugs-prepare.jar' in names
-            assert prefix+'gunslugs/display.inc' in names
-            assert b'\r' not in z.read(prefix+'gunslugs/display.inc')
-            assert (z.getinfo(prefix+'gunslugs/display.inc').external_attr>>16 & 0o777) == 0o644
-            assert prefix+'gunslugs/licenses/PORT-LICENSE.txt' in names
-            assert prefix+'gunslugs/port.json' in names
-            assert all(n == script or n.startswith(prefix+'gunslugs/') for n in names)
-            assert not any('natives-windows' in n or n.endswith(('.apk','/log.txt')) or '/cache/' in n or '/saves/' in n or '/build/' in n for n in names)
-            bridge=zipfile.ZipFile(io.BytesIO(z.read(prefix+'gunslugs/runtime/lib/gunslugs-bridge.jar')))
-            assert 'org/portmaster/gunslugs/Main.class' in bridge.namelist()
-            assert 'org/portmaster/gunslugs/DisplayLayout.class' in bridge.namelist()
-            assert not any('Smoke' in n or 'VerifyBridge' in n for n in bridge.namelist())
-            if private:
-                assert prefix+'gunslugs/gamedata/assets/logo.png' in names
-                game=zipfile.ZipFile(io.BytesIO(z.read(prefix+'gunslugs/gamedata/game.jar')))
-                assert 'B/j.class' in game.namelist()
-                assert not any(n.startswith('com/badlogic/gdx/') for n in game.namelist())
-                json.loads(z.read(prefix+'gunslugs/gamedata/source.json'))
-            else:
-                assert not any('/gamedata/assets/' in n or n.endswith('/game.jar') or n.endswith('/source.json') for n in names)
-            count+=1
-    print('PACKAGE_VERIFICATION_OK archives='+str(count))
+    assert [p.name for p in (ROOT/'dist').glob('*.zip')]==['gunslugs.zip'], 'Release directory must contain only gunslugs.zip'
+    with zipfile.ZipFile(ROOT/'dist/gunslugs.zip') as z:
+        assert z.testzip() is None
+        names=z.namelist()
+        assert not any(n.lower().endswith('/readme.txt') for n in names)
+        assert not any(n.startswith('gunslugs/licenses/') and n.endswith(('.zip','.gz','.jar','.json')) for n in names)
+        assert all(n=='Gunslugs.sh' or n.startswith('gunslugs/') for n in names)
+        assert not any(n.lower().endswith(('.apk','/game.jar','/source.json','.gptk')) or '/assets/' in n
+                       or '/saves/' in n or '/cache/' in n or 'natives-windows' in n for n in names)
+        launcher=z.read('Gunslugs.sh')
+        assert len(launcher.splitlines())<=65, 'Keep the launcher short'
+        assert b'$GPTOKEYB2 ' in launcher and b'gunslugs.ini' in launcher
+        for name in names:
+            if name.endswith(('.sh','.inc','.ini')):
+                assert b'\r' not in z.read(name) and not z.read(name).startswith(b'\xef\xbb\xbf'),name
+                if name.endswith('.sh'): assert z.getinfo(name).external_attr>>16 & 0o111,name
+        for name in ('extracted.sh','runtime.inc','display.inc'):
+            assert 'gunslugs/'+name in names
+        metadata=json.loads(z.read('gunslugs/port.json'))
+        assert metadata['name']=='gunslugs.zip' and metadata['items']==['Gunslugs.sh','gunslugs']
+        a=metadata['attr'];assert a['rtr'] is False and a['exp'] is False and a['availability']=='paid'
+        assert a['arch']==['aarch64'] and all(not r.endswith('.squashfs') for r in a['runtime'])
+        assert all(isinstance(s,dict) and {'name','gameurl','developerurl'}<=s.keys() for s in a['store'])
+        config=configparser.ConfigParser();config.read_string(z.read('gunslugs/gunslugs.ini').decode())
+        assert config['controls']['a']=='x' and config['controls']['b']=='w'
+        info=ET.fromstring(z.read('gunslugs/gameinfo.xml'));assert info.findtext('game/path')=='./Gunslugs.sh'
+        assert info.findtext('game/image')=='./gunslugs/screenshot.png'
+        assert struct.unpack('>II',z.read('gunslugs/screenshot.png')[16:24])==(640,480)
+        for name,required in [('gunslugs/runtime/lib/gunslugs-bridge.jar','org/portmaster/gunslugs/FramePacer.class'),
+                              ('gunslugs/runtime/prepare/gunslugs-prepare.jar','PrepareDevice.class')]:
+            with zipfile.ZipFile(io.BytesIO(z.read(name))) as jar:
+                assert required in jar.namelist()
+                assert not any('Smoke' in n or 'VerifyBridge' in n for n in jar.namelist())
+        readme=z.read('gunslugs/gunslugs.md').decode()
+        assert "The A/B assignments preserve the previous port's layout." not in readme
+        assert 'This update was AI-assisted.' not in z.read('gunslugs/testing_thread.txt').decode()
+        assert 'AnExplorer' in readme and 'Epic Games Store' in readme and 'Internal Storage/Backup/Apps/' in readme
+        assert '## Compile' not in readme and 'PC preparation' not in readme
+    print('PACKAGE_VERIFICATION_OK: one universal BYO ZIP; controls, metadata, extraction tools and privacy verified')
 
 if __name__=='__main__': verify()

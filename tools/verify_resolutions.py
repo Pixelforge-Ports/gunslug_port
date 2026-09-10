@@ -11,6 +11,7 @@ SIZES = [(640, 480), (720, 480), (720, 720), (1024, 768), (1280, 720)]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jdk', type=Path, required=True)
+    parser.add_argument('--gamedata', type=Path, required=True, help='Private extraction test fixture')
     args = parser.parse_args()
     suffix = '.exe' if os.name == 'nt' else ''
     jdk = args.jdk.resolve()
@@ -22,13 +23,13 @@ def main():
                     str(ROOT/'tests/GameplaySmoke.java')], check=True)
     classpath = os.pathsep.join([str(ROOT/'build/windows-libs'/'*')] if os.name == 'nt' else [])
     classpath = os.pathsep.join(filter(None, [classpath, str(classes), str(lib/'*'),
-                              str(ROOT/'package/gunslugs/gamedata/game.jar')]))
+                              str(args.gamedata.resolve()/'GAME.JAR')]))
     for width, height in SIZES:
         output = ROOT/'build/resolutions'/f'{width}x{height}'
         output.mkdir(parents=True, exist_ok=True)
         command = [str(jdk/'bin'/('java'+suffix)), f'-Dgunslugs.width={width}',
                    f'-Dgunslugs.height={height}', '-Dgunslugs.lockDisplay=true',
-                   f'-Dgunslugs.assets={ROOT / "package/gunslugs/gamedata/assets"}',
+                   f'-Dgunslugs.assets={args.gamedata.resolve() / "assets"}',
                    f'-Dgunslugs.saves={output / "saves"}', f'-Dgunslugs.testOutput={output}',
                    '-cp', classpath, 'org.portmaster.gunslugs.GameplaySmoke']
         print(f'Checking {width}x{height}', flush=True)
