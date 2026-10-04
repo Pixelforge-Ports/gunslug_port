@@ -20,9 +20,9 @@ Back up the installed APK with [AnExplorer](https://anexplorer.io/solve/backup-a
 
 ## First launch
 
-Copy the backed-up APK into the installed **`ports/gunslugs/`** folder and launch **Gunslugs** from Ports. You may keep its filename, or rename it to `gunslugs.apk`. If several APKs are present, name the intended one `gunslugs.apk`.
+Copy the backed-up APK into the installed **`ports/gunslugs/gamedata/`** folder and launch **Gunslugs** from Ports. You may keep its filename, or rename it to `gunslugs.apk`. If several APKs are present, name the intended one `gunslugs.apk`.
 
-The included **`extracted.sh`** automatically converts the APK into **`gamedata/GAME.JAR`** and extracts the assets on the handheld. Allow several minutes and do not power off during preparation. Later launches reuse the prepared files. The original APK is retained and may be removed after a successful launch. Existing working data from earlier port versions is also reused.
+The included **`extracted.sh`** automatically converts the APK into **`gamedata/GAME.JAR`** and extracts the assets into **`gamedata/assets/`** on the handheld. A PortMaster progress bar shows the current preparation phase and advances as assets are extracted. Allow several minutes and do not power off during preparation. Later launches reuse the prepared files. The original APK is retained and may be removed after a successful launch. Existing working data from earlier port versions is also reused.
 
 The adapter supports version code **52**, with APK SHA-256 `d2c857b479a4f7a19bc59840e74bfc6350316a46f8ff579c69da281e8a2933e8`. The importer checks this fingerprint before conversion; another build labeled 3.2.4 can have incompatible code. If import fails, keep **`gunslugs/log.txt`** for diagnosis and retry after correcting the APK. Incomplete data from an interrupted import is backed up automatically before replacement. Saves remain in **`gunslugs/saves/`**; preserve that folder when updating.
 

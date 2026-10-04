@@ -13,7 +13,7 @@
     ],
     "desc": "Run, jump and shoot through chaotic pixel-art battlefields, smash scenery and rescue characters in this action platformer by Orangepixel.",
     "desc_md": null,
-    "inst": "Place your legally obtained Gunslugs-3.2.4.apk in '<ports directory>/gunslugs2/gamedata/'. See README.md for Epic download and apk extraction.",
+    "inst": "Place your legally obtained Gunslugs-3.2.4.apk in '<ports directory>/gunslugs/gamedata/'. See README.md for Epic download and apk extraction.",
     "inst_md": null,
     "genres": [
       "action",

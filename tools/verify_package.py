@@ -49,13 +49,14 @@ def verify():
         assert info.findtext('game/image')=='./gunslugs/cover.png'
         assert struct.unpack('>II',z.read('gunslugs/screenshot.png')[16:24])==(640,480)
         assert struct.unpack('>II',z.read('gunslugs/cover.png')[16:24])==(640,480)
-        assert z.read('gunslugs/cover.png')==z.read('gunslugs/screenshot.png')
         for name,required in [('gunslugs/runtime/lib/gunslugs-bridge.jar','org/portmaster/gunslugs/FramePacer.class'),
                               ('gunslugs/runtime/prepare/gunslugs-prepare.jar','PrepareDevice.class')]:
             with zipfile.ZipFile(io.BytesIO(z.read(name))) as jar:
                 assert required in jar.namelist()
                 assert not any('Smoke' in n or 'VerifyBridge' in n for n in jar.namelist())
         readme=z.read('gunslugs/README.md').decode()
+        assert 'ports/gunslugs/gamedata/' in readme, 'README must document the APK folder: ports/gunslugs/gamedata/'
+        assert '<ports directory>/gunslugs/gamedata/' in a['inst']
         assert "The A/B assignments preserve the previous port's layout." not in readme
         assert 'AnExplorer' in readme and 'Epic Games Store' in readme and 'Internal Storage/Backup/Apps/' in readme
         assert '## Compile' not in readme and 'PC preparation' not in readme

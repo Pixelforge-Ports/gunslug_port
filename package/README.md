@@ -13,7 +13,9 @@ Back up the installed APK with [AnExplorer](https://anexplorer.io/solve/backup-a
 
 ## First launch
 
-Copy the backed-up APK into the installed **`ports/gunslugs/`** folder and launch **Gunslugs** from Ports. You may keep its filename, or rename it to `gunslugs.apk`.
+Copy the backed-up APK into the installed **`ports/gunslugs/gamedata/`** folder and launch **Gunslugs** from Ports. You may keep its filename, or rename it to `gunslugs.apk`. If several APKs are present, name the intended one `gunslugs.apk`.
+
+First launch prepares **`gamedata/GAME.JAR`** and **`gamedata/assets/`** on the handheld. Allow several minutes and do not power off during preparation.
 
 The adapter supports version code **52**, with APK SHA-256 `d2c857b479a4f7a19bc59840e74bfc6350316a46f8ff579c69da281e8a2933e8`.
 Saves remain in **`gunslugs/saves/`**; preserve that folder when updating.
