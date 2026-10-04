@@ -2,7 +2,7 @@
   {
     "file": "LIBGDX-LICENSE.txt",
     "url": "https://raw.githubusercontent.com/libgdx/libgdx/1.13.1/LICENSE",
-    "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    "sha256": "eb3d7b5485466acbd81f2b496f595ab637d2792e268206b27d99e793bdb67549"
   },
   {
     "file": "LIBGDX-THIRDPARTY.txt",
@@ -12,52 +12,52 @@
   {
     "file": "LIBGDX-AUTHORS.txt",
     "url": "https://raw.githubusercontent.com/libgdx/libgdx/1.13.1/AUTHORS",
-    "sha256": "59ab39cd73be064e50bb876a5e25d0ec366397616f11a6dc9e6135853b8c55b3"
+    "sha256": "33224a25c342aaf4783b89dad8fc03a2762c3c6d883f95580c46640b6f8efe7c"
   },
   {
     "file": "GDX-JNIGEN-LICENSE.txt",
     "url": "https://raw.githubusercontent.com/libgdx/gdx-jnigen/2.5.2/LICENSE",
-    "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    "sha256": "eb3d7b5485466acbd81f2b496f595ab637d2792e268206b27d99e793bdb67549"
   },
   {
     "file": "LWJGL-LICENSE.txt",
     "url": "https://raw.githubusercontent.com/LWJGL/lwjgl3/3.3.3/LICENSE.md",
-    "sha256": "4c2f770897d0cfda4d9a65bb4d6d6983dccfd57d4c7eb74ea5ded0762cbc0e75"
+    "sha256": "8d49218208a78400a7fdbcfd21c7b830085eb2ead24e217a229a1c4ddd74266b"
   },
   {
     "file": "GLFW-LICENSE.txt",
     "url": "https://raw.githubusercontent.com/LWJGL/lwjgl3/3.3.3/modules/lwjgl/glfw/glfw_license.txt",
-    "sha256": "12db5bb3f12c0793117746211cfa360a4c5067173b85f330d89552424c56be91"
+    "sha256": "1295f6410d591f215240f5e483c283382a5f6c6eb585eecd653b07a52ddf6808"
   },
   {
     "file": "JEMALLOC-LICENSE.txt",
     "url": "https://raw.githubusercontent.com/LWJGL/lwjgl3/3.3.3/modules/lwjgl/jemalloc/jemalloc_license.txt",
-    "sha256": "9daf68c8419f148737e4be0aaf4a9e97b4c2346836bfe2ac57f741cbf94cc3a1"
+    "sha256": "51cae04a2d1f4cba569434d75733d93e32fe1c3a40eed8e8f7c068916837db8a"
   },
   {
     "file": "OPENAL-SOFT-LICENSE.txt",
     "url": "https://raw.githubusercontent.com/LWJGL/lwjgl3/3.3.3/modules/lwjgl/openal/openal_soft_license.txt",
-    "sha256": "b7993225104d90ddd8024fd838faf300bea5e83d91203eab98e29512acebd69c"
+    "sha256": "5010be84a0c434909573a905e43268ac93fa01bba4c9feaa73275384c88f59dd"
   },
   {
     "file": "KHRONOS-LICENSE.txt",
     "url": "https://raw.githubusercontent.com/LWJGL/lwjgl3/3.3.3/modules/lwjgl/opengl/khronos_license.txt",
-    "sha256": "f3857759226191860119a14e6cc0420df506c10a5c1b6b2ff8abc8f8d31920fb"
+    "sha256": "ad70ce97445cba543d7fb1d3a895b0853e75459028dad464eb6a9ad8b3fd206b"
   },
   {
     "file": "LIBFFI-LICENSE.txt",
     "url": "https://raw.githubusercontent.com/LWJGL/lwjgl3/3.3.3/modules/lwjgl/core/libffi_license.txt",
-    "sha256": "d66f6a020ebb611afe64b93270d447aa32a9345d2d3a43d296493e9806b944f8"
+    "sha256": "84efeb762e3ec0da8b4758a4686d1383faef0ca29e4411d33c64b7feab7b158d"
   },
   {
     "file": "LGPL-2.1.txt",
     "url": "https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt",
-    "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
+    "sha256": "b14c366c41cc9f62dc20ec1a0885f278cf9681076d98027012a910fca5e89639"
   },
   {
     "file": "GPL-2.0.txt",
     "url": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt",
-    "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    "sha256": "498d32907f132c2cd7d3ae269f304aed87156293f63e724b83d9f62ed787d55a"
   },
   {
     "file": "sources/openal-soft-1.23.1.tar.gz",

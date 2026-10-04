@@ -25,7 +25,7 @@ def fetch(spec):
     group, name, version, classifier = spec
     filename = name + '-' + version + ('-' + classifier if classifier else '') + '.jar'
     url = REPOSITORY + '/'.join((group, name, version, filename))
-    folder = ROOT / ('build/windows-libs' if classifier == 'natives-windows' else 'package/gunslugs/runtime/lib')
+    folder = ROOT / ('build/windows-libs' if classifier == 'natives-windows' else 'build/artifacts/package/gunslugs/runtime/lib')
     if name.startswith('asm'):
         folder = ROOT / 'build/tools'
     folder.mkdir(parents=True, exist_ok=True)

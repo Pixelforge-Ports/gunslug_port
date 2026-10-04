@@ -1,1 +1,0 @@
-The original game and screenshot depict Gunslugs (experimental APK adaptation) by Orangepixel. Game code and assets retain their original proprietary terms. No commercial game files are included in public packages. Owner-provided JARs retain their embedded third-party notices. Java and Weston runtimes are supplied separately by PortMaster with their component licenses.

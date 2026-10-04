@@ -15,7 +15,7 @@ def main():
     args = parser.parse_args()
     suffix = '.exe' if os.name == 'nt' else ''
     jdk = args.jdk.resolve()
-    lib = ROOT / 'package/gunslugs/runtime/lib'
+    lib = ROOT / 'build/artifacts/package/gunslugs/runtime/lib'
     classes = ROOT / 'build/test-classes'
     classes.mkdir(parents=True, exist_ok=True)
     subprocess.run([str(jdk/'bin'/('javac'+suffix)), '-encoding', 'UTF-8',

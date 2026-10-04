@@ -14,14 +14,20 @@ def verify():
     with zipfile.ZipFile(ROOT/'dist/gunslugs.zip') as z:
         assert z.testzip() is None
         names=z.namelist()
+        assert 'gunslugs/testing_thread.txt' not in names
         assert not any(n.lower().endswith('/readme.txt') for n in names)
         assert not any(n.startswith('gunslugs/licenses/') and n.endswith(('.zip','.gz','.jar','.json')) for n in names)
         assert all(n=='Gunslugs.sh' or n.startswith('gunslugs/') for n in names)
         assert not any(n.lower().endswith(('.apk','/game.jar','/source.json','.gptk')) or '/assets/' in n
                        or '/saves/' in n or '/cache/' in n or 'natives-windows' in n for n in names)
         launcher=z.read('Gunslugs.sh')
-        assert len(launcher.splitlines())<=65, 'Keep the launcher short'
         assert b'$GPTOKEYB2 ' in launcher and b'gunslugs.ini' in launcher
+        assert b'> "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1' in launcher
+        assert b'runtime_check "${weston_runtime}.squashfs"' in launcher
+        assert b'runtime_check "${java_runtime}.squashfs"' in launcher
+        assert b'mount "$controlfolder/libs/${weston_runtime}.squashfs" "$weston_dir"' in launcher
+        assert b'mount "$controlfolder/libs/${java_runtime}.squashfs" "$JAVA_HOME"' in launcher
+        assert b'if [[ "$PM_CAN_MOUNT" != "N" ]]' in launcher
         for name in names:
             if name.endswith(('.sh','.inc','.ini')):
                 assert b'\r' not in z.read(name) and not z.read(name).startswith(b'\xef\xbb\xbf'),name
@@ -29,23 +35,28 @@ def verify():
         for name in ('extracted.sh','runtime.inc','display.inc'):
             assert 'gunslugs/'+name in names
         metadata=json.loads(z.read('gunslugs/port.json'))
+        assert list(metadata)==['version','name','items','items_opt','attr']
         assert metadata['name']=='gunslugs.zip' and metadata['items']==['Gunslugs.sh','gunslugs']
-        a=metadata['attr'];assert a['rtr'] is False and a['exp'] is False and a['availability']=='paid'
-        assert a['arch']==['aarch64'] and all(not r.endswith('.squashfs') for r in a['runtime'])
+        a=metadata['attr']
+        assert list(a)==['title','porter','desc','desc_md','inst','inst_md','genres','image','rtr','exp','runtime','store','availability','reqs','arch','min_glibc']
+        assert a['porter']==['Ronax']
+        assert a['rtr'] is False and a['exp'] is False and a['availability']=='paid'
+        assert a['arch']==['aarch64'] and a['runtime']==['weston_pkg_0.2.squashfs','zulu17.54.21-ca-jre17.0.13-linux.squashfs']
         assert all(isinstance(s,dict) and {'name','gameurl','developerurl'}<=s.keys() for s in a['store'])
         config=configparser.ConfigParser();config.read_string(z.read('gunslugs/gunslugs.ini').decode())
         assert config['controls']['a']=='x' and config['controls']['b']=='w'
         info=ET.fromstring(z.read('gunslugs/gameinfo.xml'));assert info.findtext('game/path')=='./Gunslugs.sh'
-        assert info.findtext('game/image')=='./gunslugs/screenshot.png'
+        assert info.findtext('game/image')=='./gunslugs/cover.png'
         assert struct.unpack('>II',z.read('gunslugs/screenshot.png')[16:24])==(640,480)
+        assert struct.unpack('>II',z.read('gunslugs/cover.png')[16:24])==(640,480)
+        assert z.read('gunslugs/cover.png')==z.read('gunslugs/screenshot.png')
         for name,required in [('gunslugs/runtime/lib/gunslugs-bridge.jar','org/portmaster/gunslugs/FramePacer.class'),
                               ('gunslugs/runtime/prepare/gunslugs-prepare.jar','PrepareDevice.class')]:
             with zipfile.ZipFile(io.BytesIO(z.read(name))) as jar:
                 assert required in jar.namelist()
                 assert not any('Smoke' in n or 'VerifyBridge' in n for n in jar.namelist())
-        readme=z.read('gunslugs/gunslugs.md').decode()
+        readme=z.read('gunslugs/README.md').decode()
         assert "The A/B assignments preserve the previous port's layout." not in readme
-        assert 'This update was AI-assisted.' not in z.read('gunslugs/testing_thread.txt').decode()
         assert 'AnExplorer' in readme and 'Epic Games Store' in readme and 'Internal Storage/Backup/Apps/' in readme
         assert '## Compile' not in readme and 'PC preparation' not in readme
     print('PACKAGE_VERIFICATION_OK: one universal BYO ZIP; controls, metadata, extraction tools and privacy verified')

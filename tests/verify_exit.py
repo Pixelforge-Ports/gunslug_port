@@ -10,6 +10,7 @@ launcher = (Path(__file__).resolve().parents[1] / 'package/Gunslugs.sh').read_te
 handling = launcher[launcher.index('status=$?'):]
 for status in (0, 143, 1, 139):
     script = 'gunslugs_fail() { echo "ERROR: $*"; exit 1; };\n'
+    script += 'gunslugs_cleanup() { :; };\n'
     script += f'(exit {status})\n' + handling
     result = subprocess.run([args.bash, '-c', script], capture_output=True, text=True)
     normal = status in (0, 143)

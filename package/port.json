@@ -9,11 +9,11 @@
   "attr": {
     "title": "Gunslugs",
     "porter": [
-      "ronaxdevil"
+      "Ronax"
     ],
     "desc": "Run, jump and shoot through chaotic pixel-art battlefields, smash scenery and rescue characters in this action platformer by Orangepixel.",
     "desc_md": null,
-    "inst": "Install through PortMaster. Buy and install Gunslugs 3.2.4 from the Epic Games Store mobile app on Android. Back it up with AnExplorer (Apps, long-press Gunslugs, Backup), then copy the APK from Internal Storage/Backup/Apps into ports/gunslugs. Launch Gunslugs; extracted.sh builds GAME.JAR and extracts assets on the handheld. Requires the supported versionCode 52 APK, AArch64 firmware, Java 17, Westonpack and current PortMaster with gptokeyb2.",
+    "inst": "Place your legally obtained Gunslugs-3.2.4.apk in '<ports directory>/gunslugs2/gamedata/'. See README.md for Epic download and apk extraction.",
     "inst_md": null,
     "genres": [
       "action",
@@ -23,21 +23,21 @@
     "rtr": false,
     "exp": false,
     "runtime": [
-      "weston_pkg_0.2",
-      "zulu17.54.21-ca-jre17.0.13-linux"
+      "weston_pkg_0.2.squashfs",
+      "zulu17.54.21-ca-jre17.0.13-linux.squashfs"
     ],
-    "reqs": [],
-    "arch": [
-      "aarch64"
-    ],
-    "min_glibc": "2.27",
-    "availability": "paid",
-    "store": [
+	"store": [
       {
         "name": "Epic Games Store (Android)",
         "gameurl": "https://store.epicgames.com/p/gunslugs-2b6459",
         "developerurl": "https://orangepixel.net/"
       }
-    ]
+    ],
+    "availability": "paid",
+    "reqs": [],
+    "arch": [
+      "aarch64"
+    ],
+    "min_glibc": ""
   }
 }

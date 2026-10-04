@@ -1,6 +1,6 @@
 ## Notes
 
-Thanks to [Orangepixel](https://orangepixel.net/) for creating Gunslugs, a pixel-art action game with chaotic shootouts and destructible scenery.
+Thanks to [Orangepixel](https://orangepixel.net/) for creating Gunslugs, a pixel-art action game with chaotic shootouts and destructible scenery. PortMaster adaptation by **Ronax**.
 
 This is a universal BYO-data PortMaster package for compatible **64-bit ARM Linux handhelds**. Install `gunslugs.zip` through PortMaster's `autoinstall` folder. PortMaster installs the same ZIP using your firmware's folder layout and provides the Java 17 and Westonpack runtimes. Keep PortMaster updated for gptokeyb2 support.
 

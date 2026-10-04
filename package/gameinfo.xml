@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <gameList>
   <game>
     <path>./Gunslugs.sh</path>
@@ -8,6 +8,6 @@
     <developer>Orangepixel</developer>
     <publisher>Orangepixel</publisher>
     <genre>Action</genre>
-    <image>./gunslugs/screenshot.png</image>
+    <image>./gunslugs/cover.png</image>
   </game>
 </gameList>
