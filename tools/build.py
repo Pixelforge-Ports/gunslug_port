@@ -40,6 +40,8 @@ def main():
     p.add_argument('--package-only',action='store_true')
     args=p.parse_args()
     package_before=package_snapshot()
+    from portmaster_package import verify_runtime_libraries
+    verify_runtime_libraries(ROOT)
     artifacts=ROOT/'build/artifacts/package'
     if not args.package_only:
         if not args.jdk or not args.dex_tools: p.error('--jdk and --dex-tools are required')

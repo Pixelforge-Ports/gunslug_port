@@ -1,6 +1,7 @@
 """Check the only release archive, metadata, helpers and absence of game data."""
 from pathlib import Path
 import configparser
+import hashlib
 import io
 import json
 import struct
@@ -10,6 +11,8 @@ import xml.etree.ElementTree as ET
 ROOT=Path(__file__).resolve().parents[1]
 
 def verify():
+    from portmaster_package import verify_runtime_libraries
+    runtime_files=verify_runtime_libraries(ROOT)
     assert [p.name for p in (ROOT/'dist').glob('*.zip')]==['gunslugs.zip'], 'Release directory must contain only gunslugs.zip'
     with zipfile.ZipFile(ROOT/'dist/gunslugs.zip') as z:
         assert z.testzip() is None
@@ -30,6 +33,16 @@ def verify():
         assert b'mount "$controlfolder/libs/${weston_runtime}.squashfs" "$weston_dir"' in launcher
         assert b'mount "$controlfolder/libs/${java_runtime}.squashfs" "$JAVA_HOME"' in launcher
         assert b'if [[ "$PM_CAN_MOUNT" != "N" ]]' in launcher
+        assert b'LD_LIBRARY_PATH=$GAMEDIR/libs.${DEVICE_ARCH}:$LD_LIBRARY_PATH' in launcher
+        assert b'if command -v getconf >/dev/null 2>&1; then' in launcher
+        assert b'[ -z "$userland_bits" ] || [ "$userland_bits" = 64 ]' in launcher
+        for name in runtime_files:
+            assert z.read(name)==(ROOT/'package'/name).read_bytes(), name
+        jpeg=z.read('gunslugs/libs.aarch64/libjpeg.so.8')
+        assert jpeg[:6]==b'\x7fELF\x02\x01' and struct.unpack('<H',jpeg[18:20])[0]==183
+        assert hashlib.sha256(jpeg).hexdigest()=='bd56375d246a0e3b8807c34dd4ed8f65bfbb6fea014220e62d2befa6f92fb9da'
+        jpeg_license=z.read('gunslugs/licenses/LICENSE-libjpeg-turbo.txt')
+        assert b'Independent JPEG Group' in jpeg_license and b'NO WARRANTY' in jpeg_license
         for name in names:
             if name.endswith(('.sh','.inc','.ini')):
                 assert b'\r' not in z.read(name) and not z.read(name).startswith(b'\xef\xbb\xbf'),name

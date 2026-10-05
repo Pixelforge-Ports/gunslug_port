@@ -1,6 +1,7 @@
 """Create the PortMaster source layout and ONE universal BYO install archive."""
 from pathlib import Path
 from pathlib import PurePosixPath
+import hashlib
 import json
 import os
 import stat
@@ -13,8 +14,31 @@ def entry(out,name,data):
     info.external_attr=(0o100755 if name.endswith('.sh') else 0o100644)<<16
     info.compress_type=zipfile.ZIP_DEFLATED; out.writestr(info,data)
 
+def verify_runtime_libraries(root):
+    root=Path(root); files=[]
+    for library in json.loads((root/'tools/runtime-lock.json').read_text(encoding='utf-8')):
+        if library['test_only']: continue
+        directory=PurePosixPath(library['directory']); name=PurePosixPath(library['name'])
+        if directory.is_absolute() or '..' in directory.parts or '\\' in str(directory) or str(directory) != 'libs.aarch64':
+            raise ValueError('Unsafe runtime library directory: '+str(directory))
+        if name.is_absolute() or len(name.parts)!=1 or str(name) in ('.','..') or '\\' in str(name):
+            raise ValueError('Unsafe runtime library name: '+str(name))
+        relative=(PurePosixPath('gunslugs')/directory/name).as_posix()
+        path=root/'package'/relative
+        path.resolve().relative_to((root/'package').resolve())
+        data=path.read_bytes()
+        if hashlib.sha256(data).hexdigest()!=library['sha256']:
+            raise ValueError('Runtime checksum mismatch: '+relative)
+        if len(data)<20 or data[:6]!=b'\x7fELF\x02\x01' or int.from_bytes(data[18:20],'little')!=183:
+            raise ValueError('Runtime library must be a little-endian AArch64 ELF: '+relative)
+        files.append(relative)
+    if 'gunslugs/libs.aarch64/libjpeg.so.8' not in files:
+        raise ValueError('AmberELEC requires the locked libjpeg.so.8 library')
+    return files
+
 def export(root, generated_artifacts=None):
     root=Path(root); package=root/'package'; files={}
+    runtime_files=verify_runtime_libraries(root)
     meta=json.loads((package/'port.json').read_text(encoding='utf-8'))
     assert meta['name']=='gunslugs.zip' and meta['items']==['Gunslugs.sh','gunslugs']
     for file in sorted(package.rglob('*')):
@@ -51,8 +75,12 @@ def export(root, generated_artifacts=None):
               'gunslugs/extracted.sh','gunslugs/display.inc','gunslugs/gunslugs.ini','gunslugs/gunslugs-pc.ini',
               'gunslugs/gamedata/PLACE_GAMEDATA_HERE.txt',
               'gunslugs/runtime/lib/gunslugs-bridge.jar','gunslugs/runtime/prepare/gunslugs-prepare.jar']
+    required+=runtime_files+['gunslugs/licenses/LICENSE-libjpeg-turbo.txt']
     for name in required:
         if name not in files: raise ValueError('Missing package file: '+name)
+    for name in runtime_files:
+        if files[name]!=(package/name).read_bytes():
+            raise ValueError('Generated artifacts override a locked runtime library: '+name)
     target=root/'ports/gunslugs'
     ports=root/'ports';ports.mkdir(parents=True,exist_ok=True)
     try: target.resolve().relative_to(ports.resolve())

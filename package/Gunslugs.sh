@@ -79,7 +79,7 @@ $GPTOKEYB2 "java" -c "$game_controls" &
 pm_platform_helper "$JAVA_HOME/bin/java"
 printf 'Firmware: %s; build: %s; display: %s\n' "$CFW_NAME" "$game_build" "$gunslugs_display_description"
 
-$ESUDO env "${display_env[@]}" "$weston_dir/westonwrap.sh" headless noop kiosk crusty_glx_gl4es \
+$ESUDO env "${display_env[@]}" "LD_LIBRARY_PATH=$GAMEDIR/libs.${DEVICE_ARCH}:$LD_LIBRARY_PATH" "$weston_dir/westonwrap.sh" headless noop kiosk crusty_glx_gl4es \
   "PATH=$JAVA_HOME/bin:$PATH" "JAVA_HOME=$JAVA_HOME" "HOME=$SAVEDIR" \
   "XDG_DATA_HOME=$SAVEDIR" "XDG_CONFIG_HOME=$SAVEDIR/config" \
   "XDG_CACHE_HOME=$CACHEDIR" \
