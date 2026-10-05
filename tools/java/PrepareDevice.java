@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.jar.*;
 import java.util.zip.*;
 
-/** On-device APK import. Requires only the PortMaster JRE and bundled tools. */
+/** Select and import the owner's APK or PC data with the PortMaster JRE. */
 public final class PrepareDevice {
     private static final String SHA = "d2c857b479a4f7a19bc59840e74bfc6350316a46f8ff579c69da281e8a2933e8";
 
@@ -50,7 +50,7 @@ public final class PrepareDevice {
 
     private static Path findApk(Path directory) throws IOException {
         if (!Files.isDirectory(directory)) throw new IOException(
-            "Copy your backed-up Gunslugs 3.2.4 APK into gunslugs/gamedata, then launch again.");
+            "Copy gunslugs.dat (PC 3.3.0) or your backed-up Gunslugs 3.2.4 APK into gunslugs/gamedata, then launch again.");
         Path named = directory.resolve("gunslugs.apk");
         if (Files.isRegularFile(named)) return named;
         List<Path> found = new ArrayList<>();
@@ -59,7 +59,7 @@ public final class PrepareDevice {
                 if (Files.isRegularFile(file) && file.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".apk")) found.add(file);
         }
         if (found.size() != 1) throw new IOException(found.isEmpty()
-            ? "Copy your backed-up Gunslugs 3.2.4 APK into gunslugs/gamedata, then launch again."
+            ? "Copy gunslugs.dat (PC 3.3.0) or your backed-up Gunslugs 3.2.4 APK into gunslugs/gamedata, then launch again."
             : "Multiple APKs found. Name the intended one gunslugs.apk, then launch again.");
         return found.get(0);
     }
@@ -159,16 +159,41 @@ public final class PrepareDevice {
         return name.startsWith("assets/") && !name.startsWith("assets/dexopt/") && !entry.isDirectory();
     }
 
+    // A supplied DAT takes priority. Prepared APK output remains reusable when it
+    // is removed; prepared PC output can also run after the original DAT is removed.
+    static String mode(Path data) throws IOException {
+        if (PreparePc.findDat(data) != null) return "pc";
+        if (ready(data)) return "apk";
+        if (Files.isDirectory(data)) {
+            try (DirectoryStream<Path> files = Files.newDirectoryStream(data)) {
+                for (Path file : files)
+                    if (Files.isRegularFile(file) && file.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".apk")) return "apk";
+            }
+        }
+        return PreparePc.ready(data) ? "pc" : "apk";
+    }
+
     public static void main(String[] args) {
         try {
-            if (args.length == 2 && args[0].equals("--check")) { System.exit(ready(Paths.get(args[1])) ? 0 : 1); return; }
+            if (args.length == 2 && args[0].equals("--mode")) { System.out.println(mode(Paths.get(args[1]))); return; }
+            if (args.length == 2 && args[0].equals("--check")) {
+                Path data = Paths.get(args[1]);
+                System.exit((mode(data).equals("pc") ? PreparePc.ready(data) : ready(data)) ? 0 : 1); return;
+            }
             if (args.length == 1) {
                 Path game = Paths.get(args[0]).toAbsolutePath().normalize();
                 Path data = game.resolve("gamedata");
-                if (ready(data)) { System.out.println("DEVICE_PREPARATION_REUSED"); return; }
-                prepare(findApk(data), data);
+                if (mode(data).equals("pc")) {
+                    if (PreparePc.ready(data)) { System.out.println("PC_PREPARATION_REUSED"); return; }
+                    PreparePc.prepare(PreparePc.findDat(data), data);
+                } else {
+                    if (ready(data)) { System.out.println("DEVICE_PREPARATION_REUSED"); return; }
+                    prepare(findApk(data), data);
+                }
             } else if (args.length == 2) {
-                prepare(Paths.get(args[0]).toAbsolutePath().normalize(), Paths.get(args[1]).toAbsolutePath().normalize());
+                Path input = Paths.get(args[0]).toAbsolutePath().normalize(), data = Paths.get(args[1]).toAbsolutePath().normalize();
+                if (input.getFileName().toString().equalsIgnoreCase("gunslugs.dat")) PreparePc.prepare(input, data);
+                else prepare(input, data);
             } else throw new IllegalArgumentException("Usage: PrepareDevice game-directory");
         } catch (Exception error) {
             System.err.println("Gunslugs extraction: " + error.getMessage());

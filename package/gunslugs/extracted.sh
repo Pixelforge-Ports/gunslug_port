@@ -1,6 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: MIT
-# First launch: convert the owner's APK with the mounted PortMaster JRE.
+# First launch: prepare the owner's APK or PC data with the PortMaster JRE.
 set -eo pipefail
 GAMEDIR="${1:-$(cd -- "$(dirname -- "$0")" && pwd)}"
 JAVA_HOME="${2:-${JAVA_HOME:-/tmp/gunslugs-java}}"
@@ -10,16 +10,16 @@ if [[ ! -x "$JAVA_HOME/bin/java" ]]; then
 fi
 prepare_cp="$GAMEDIR/runtime/prepare/*"
 if "$JAVA_HOME/bin/java" -Xmx128m -cp "$prepare_cp" PrepareDevice --check "$GAMEDIR/gamedata"; then
-    echo "Prepared GAME.JAR and assets found."
+    echo "Prepared Gunslugs game data found."
     exit 0
 fi
-echo "Preparing Gunslugs 3.2.4. Please wait several minutes and do not power off."
+echo "Preparing Gunslugs game data. Please wait and do not power off."
 if [[ -n "${controlfolder:-}" && -f "$controlfolder/PortMasterDialog.txt" ]]; then
     source "$controlfolder/PortMasterDialog.txt"
     PortMasterDialogInit "no-harbour"
     PortMasterDialog "messages_begin"
     PortMasterDialog "message" "Preparing Gunslugs. Please do not power off."
-    PortMasterDialog "progress" "Preparing APK" 0 100
+    PortMasterDialog "progress" "Preparing game data" 0 100
 fi
 
 status=0

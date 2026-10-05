@@ -56,18 +56,28 @@ $ESUDO mount "$controlfolder/libs/${java_runtime}.squashfs" "$JAVA_HOME" \
   || { pm_message "Gunslugs: Cannot mount Java. See gunslugs/log.txt."; sleep 5; exit 1; }
 export PATH="$JAVA_HOME/bin:$PATH"
 
-bash "$GAMEDIR/extracted.sh" "$GAMEDIR" "$JAVA_HOME" || { pm_message "APK preparation failed. See log.txt."; sleep 5; exit 1; }
+bash "$GAMEDIR/extracted.sh" "$GAMEDIR" "$JAVA_HOME" || { pm_message "Game data preparation failed. See log.txt."; sleep 5; exit 1; }
+game_build=$("$JAVA_HOME/bin/java" -Xmx32m -cp "$GAMEDIR/runtime/prepare/*" PrepareDevice --mode "$GAMEDATADIR") || exit 1
+game_main=org.portmaster.gunslugs.Main
+game_controls="$GAMEDIR/gunslugs.ini"
 gunslugs_audio_env=()
 [[ -n "${XDG_RUNTIME_DIR:-}" ]] && gunslugs_audio_env=("XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR")
 source "$GAMEDIR/display.inc"
 gunslugs_display_setup || { pm_message "Use auto or WIDTHxHEIGHT in resolution.txt."; sleep 5; exit 1; }
 GAME_JAR="$GAMEDATADIR/GAME.JAR"
 [[ -f "$GAME_JAR" ]] || GAME_JAR="$GAMEDATADIR/game.jar"
+if [[ "$game_build" == pc ]]; then
+  GAME_JAR="$GAMEDATADIR/pc/GAME.JAR"
+  game_main=org.portmaster.gunslugs.PcMain
+  game_controls="$GAMEDIR/gunslugs-pc.ini"
+  SAVEDIR="$GAMEDIR/saves/pc/"
+  $ESUDO mkdir -p "$SAVEDIR"
+fi
 export SDL_GAMECONTROLLERCONFIG="${sdl_controllerconfig:-}"
 export HOTKEY=back
-$GPTOKEYB2 "java" -c "$GAMEDIR/gunslugs.ini" &
+$GPTOKEYB2 "java" -c "$game_controls" &
 pm_platform_helper "$JAVA_HOME/bin/java"
-printf 'Firmware: %s; display: %s\n' "$CFW_NAME" "$gunslugs_display_description"
+printf 'Firmware: %s; build: %s; display: %s\n' "$CFW_NAME" "$game_build" "$gunslugs_display_description"
 
 $ESUDO env "${display_env[@]}" "$weston_dir/westonwrap.sh" headless noop kiosk crusty_glx_gl4es \
   "PATH=$JAVA_HOME/bin:$PATH" "JAVA_HOME=$JAVA_HOME" "HOME=$SAVEDIR" \
@@ -78,7 +88,7 @@ $ESUDO env "${display_env[@]}" "$weston_dir/westonwrap.sh" headless noop kiosk c
   "-Duser.home=$SAVEDIR" "-Djava.io.tmpdir=$CACHEDIR" \
   "-Dgunslugs.assets=$GAMEDATADIR/assets" "-Dgunslugs.saves=$SAVEDIR" \
   -Dgunslugs.fullscreen=true -Dgunslugs.lockDisplay=true "${display_java[@]}" \
-  -cp "$GAMEDIR/runtime/lib/*:$GAME_JAR" org.portmaster.gunslugs.Main
+  -cp "$GAMEDIR/runtime/lib/*:$GAME_JAR" "$game_main"
 
 $ESUDO "$weston_dir/westonwrap.sh" cleanup
 if [[ "$PM_CAN_MOUNT" != "N" ]]; then

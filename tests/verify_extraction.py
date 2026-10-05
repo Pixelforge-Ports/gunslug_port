@@ -15,10 +15,14 @@ def main():
     parser.add_argument('--jdk', type=Path, required=True)
     parser.add_argument('--bash', type=Path, required=True)
     parser.add_argument('--apk', type=Path, help='Locally owned APK for the full conversion and asset comparison')
+    parser.add_argument('--runtime-fixture', type=Path, help='Installed-layout fixture to test without building a ZIP')
     args = parser.parse_args()
     fixture = ROOT / 'build/extraction-tests' / str(uuid.uuid4())
-    with zipfile.ZipFile(ROOT / 'dist/gunslugs.zip') as package:
-        package.extractall(fixture)
+    if args.runtime_fixture:
+        shutil.copytree(args.runtime_fixture, fixture)
+    else:
+        with zipfile.ZipFile(ROOT / 'dist/gunslugs.zip') as package:
+            package.extractall(fixture)
     game = fixture / 'gunslugs'
     data = game / 'gamedata'
     data.mkdir(exist_ok=True)
@@ -47,7 +51,7 @@ PortMasterDialogExit() { printf 'exit\\n' >> "$GAMEDIR/dialog.log"; }
         if shows_progress:
             calls = dialog.read_text()
             assert calls.startswith('init\n') and calls.endswith('progress_clear\t\nexit\n'), calls
-            assert 'progress\tPreparing APK\t0\t100\t\n' in calls, calls
+            assert 'progress\tPreparing game data\t0\t100\t\n' in calls, calls
         else:
             assert not dialog.exists(), 'Prepared data must skip the first-launch dialog'
         print(message + ': passed', flush=True)

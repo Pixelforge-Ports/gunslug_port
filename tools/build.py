@@ -1,6 +1,6 @@
 """Compile the port and on-device importer; emit one universal BYO-data ZIP.
 
-No APK is accepted by the release build and no game data is prepared here.
+No APK or PC DAT is accepted by the release build; game data is prepared on-device.
 """
 import argparse
 import hashlib
@@ -62,13 +62,13 @@ def main():
         compilation=Path(tempfile.mkdtemp(prefix='compile-',dir=build))
         classes=compilation/'classes'; toolclasses=compilation/'tool-classes'
         for folder in (classes,toolclasses): folder.mkdir()
-        run([javac,'-encoding','UTF-8','-source','8','-target','8','-cp',str(prepare/'*'),
-             '-d',toolclasses,ROOT/'tools/java/PrepareGame.java',ROOT/'tools/java/PrepareDevice.java'])
+        run([javac,'-encoding','UTF-8','--release','8','-Xlint:-options','-cp',str(prepare/'*'),
+             '-d',toolclasses,*sorted((ROOT/'tools/java').glob('Prepare*.java'))])
         prepare_temp=prepare/'gunslugs-prepare.jar.tmp'
         run([jar,'cf',prepare_temp,'-C',toolclasses,'.'])
         prepare_temp.replace(prepare/'gunslugs-prepare.jar')
         lib=artifacts/'gunslugs/runtime/lib'; lib.mkdir(parents=True,exist_ok=True)
-        run([javac,'-encoding','UTF-8','-source','8','-target','8','-cp',str(lib/'*'),
+        run([javac,'-encoding','UTF-8','--release','8','-Xlint:-options','-cp',str(lib/'*'),
              '-d',classes,*sorted((ROOT/'src').rglob('*.java'))])
         bridge_temp=lib/'gunslugs-bridge.jar.tmp'
         run([jar,'cf',bridge_temp,'-C',classes,'.'])

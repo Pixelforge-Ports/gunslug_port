@@ -18,10 +18,12 @@ def verify():
         assert not any(n.lower().endswith('/readme.txt') for n in names)
         assert not any(n.startswith('gunslugs/licenses/') and n.endswith(('.zip','.gz','.jar','.json')) for n in names)
         assert all(n=='Gunslugs.sh' or n.startswith('gunslugs/') for n in names)
-        assert not any(n.lower().endswith(('.apk','/game.jar','/source.json','.gptk')) or '/assets/' in n
+        assert not any(n.lower().endswith(('.apk','.dat','/game.jar','/source.json','.gptk')) or '/assets/' in n
                        or '/saves/' in n or '/cache/' in n or 'natives-windows' in n for n in names)
         launcher=z.read('Gunslugs.sh')
         assert b'$GPTOKEYB2 ' in launcher and b'gunslugs.ini' in launcher
+        assert b'PrepareDevice --mode "$GAMEDATADIR"' in launcher and b'org.portmaster.gunslugs.PcMain' in launcher
+        assert b'gunslugs-pc.ini' in launcher and b'$GAMEDATADIR/pc/GAME.JAR' in launcher
         assert b'> "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1' in launcher
         assert b'runtime_check "${weston_runtime}.squashfs"' in launcher
         assert b'runtime_check "${java_runtime}.squashfs"' in launcher
@@ -32,7 +34,7 @@ def verify():
             if name.endswith(('.sh','.inc','.ini')):
                 assert b'\r' not in z.read(name) and not z.read(name).startswith(b'\xef\xbb\xbf'),name
                 if name.endswith('.sh'): assert z.getinfo(name).external_attr>>16 & 0o111,name
-        for name in ('extracted.sh','runtime.inc','display.inc'):
+        for name in ('extracted.sh','display.inc'):
             assert 'gunslugs/'+name in names
         metadata=json.loads(z.read('gunslugs/port.json'))
         assert list(metadata)==['version','name','items','items_opt','attr']
@@ -45,6 +47,8 @@ def verify():
         assert all(isinstance(s,dict) and {'name','gameurl','developerurl'}<=s.keys() for s in a['store'])
         config=configparser.ConfigParser();config.read_string(z.read('gunslugs/gunslugs.ini').decode())
         assert config['controls']['a']=='x' and config['controls']['b']=='w'
+        pc_config=configparser.ConfigParser();pc_config.read_string(z.read('gunslugs/gunslugs-pc.ini').decode())
+        assert pc_config['controls']['a']=='x' and pc_config['controls']['b']=='up'
         info=ET.fromstring(z.read('gunslugs/gameinfo.xml'));assert info.findtext('game/path')=='./Gunslugs.sh'
         assert info.findtext('game/image')=='./gunslugs/cover.png'
         assert struct.unpack('>II',z.read('gunslugs/screenshot.png')[16:24])==(640,480)
@@ -53,13 +57,15 @@ def verify():
                               ('gunslugs/runtime/prepare/gunslugs-prepare.jar','PrepareDevice.class')]:
             with zipfile.ZipFile(io.BytesIO(z.read(name))) as jar:
                 assert required in jar.namelist()
+                assert ('org/portmaster/gunslugs/PcMain.class' if name.endswith('gunslugs-bridge.jar') else 'PreparePc.class') in jar.namelist()
                 assert not any('Smoke' in n or 'VerifyBridge' in n for n in jar.namelist())
         readme=z.read('gunslugs/README.md').decode()
-        assert 'ports/gunslugs/gamedata/' in readme, 'README must document the APK folder: ports/gunslugs/gamedata/'
+        assert 'ports/gunslugs/gamedata/' in readme, 'README must document the game-data folder'
         assert '<ports directory>/gunslugs/gamedata/' in a['inst']
         assert "The A/B assignments preserve the previous port's layout." not in readme
         assert 'AnExplorer' in readme and 'Epic Games Store' in readme and 'Internal Storage/Backup/Apps/' in readme
-        assert '## Compile' not in readme and 'PC preparation' not in readme
+        assert 'gunslugs.dat' in readme and '3.3.0' in readme and 'GOG' in readme and 'gunslugs.dat' in a['inst']
+        assert '## Compile' not in readme
     print('PACKAGE_VERIFICATION_OK: one universal BYO ZIP; controls, metadata, extraction tools and privacy verified')
 
 if __name__=='__main__': verify()

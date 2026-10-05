@@ -28,7 +28,7 @@ def export(root, generated_artifacts=None):
         if name.startswith('gunslugs/runtime/prepare/'): continue
         if file.name.lower()=='readme.txt': continue
         if name.startswith('gunslugs/licenses/') and (len(parts)>3 or file.suffix.lower() in ('.zip','.gz','.jar','.json')): continue
-        if file.suffix.lower() in ('.apk','.gptk','.log','.pyc') or file.name in ('log.txt','.gitkeep'): continue
+        if file.suffix.lower() in ('.apk','.dat','.gptk','.log','.pyc') or file.name in ('log.txt','.gitkeep'): continue
         if 'natives-windows' in name: continue
         data=file.read_bytes()
         if file.suffix.lower() in TEXT_SUFFIXES:
@@ -48,7 +48,7 @@ def export(root, generated_artifacts=None):
                     data=data.replace(b'\r\r\n',b'\n').replace(b'\r\n',b'\n').replace(b'\r',b'\n')
                 files[name]=data
     required=['Gunslugs.sh','README.md','port.json','gameinfo.xml','screenshot.png','cover.png',
-              'gunslugs/extracted.sh','gunslugs/runtime.inc','gunslugs/display.inc','gunslugs/gunslugs.ini',
+              'gunslugs/extracted.sh','gunslugs/display.inc','gunslugs/gunslugs.ini','gunslugs/gunslugs-pc.ini',
               'gunslugs/gamedata/PLACE_GAMEDATA_HERE.txt',
               'gunslugs/runtime/lib/gunslugs-bridge.jar','gunslugs/runtime/prepare/gunslugs-prepare.jar']
     for name in required:

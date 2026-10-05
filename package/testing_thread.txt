@@ -6,37 +6,39 @@ Source: https://github.com/ronaxdevil/gunslug_port
 
 Buy and install Gunslugs 3.2.4 from the Epic Games Store mobile app on Android.
 Use AnExplorer > Apps > long-press Gunslugs > Backup. Copy the resulting APK
-from Internal Storage/Backup/Apps into ports/gunslugs, then launch the port.
+from Internal Storage/Backup/Apps into ports/gunslugs/gamedata, then launch the port.
 extracted.sh builds GAME.JAR and extracts assets on the handheld.
 
-Controls:
-D-pad / left stick: move
-A: fire / confirm
-B: jump
-X / L1 / L2: weapon swap
-Y: special ability
-R1: options
-R2: fire
-Start: confirm
-Select: back / pause
-Select + Start: exit
+PC alternative: GOG Gunslugs 3.3.0, build ID 58441296934612083.
+Copy gunslugs.dat from the Windows installation into ports/gunslugs/gamedata.
+First launch prepares gamedata/pc/GAME.JAR on the handheld. PC data takes
+priority if both inputs are present. PC saves are in gunslugs/saves/pc.
+
+controls:
+D-pad / left stick: Move / menu navigation; Up jumps |
+A / X / R2: Fire / confirm
+B / L2: Jump
+Y / R1: Options
+Start: Confirm
+Select / L1: Back / pause
+Select + Start: Exit through PortMaster
 
 CFW tests:
 [ ] AmberELEC
-[ ] ArkOS / dArkOS
-[ ] muOS
+[x] ArkOS / dArkOS
+[x] muOS
 ROCKNIX:
   [ ] Libmali
-  [ ] Panfrost
+  [x] Panfrost
   [ ] Adreno (optional)
-[ ] Knulli
+[x] Knulli
 
 Resolutions:
 [ ] 480x320 (optional)
-[ ] 640x480
-[ ] 720x480
-[ ] 720x720
-[ ] 1280x720
+[x] 640x480
+[x] 720x480
+[x] 720x720
+[x] 1280x720
 
-Check first-launch APK import, retry after interrupted preparation, input and
+Check first-launch APK and PC DAT import, selection when both inputs exist,, retry after interrupted preparation, input and
 release, audio, save/restart, exit cleanup and sleep/resume. Attach log.txt.
